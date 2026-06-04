@@ -1,0 +1,4 @@
+i = 3
+
+for a in range(1, i):
+  print(a)
