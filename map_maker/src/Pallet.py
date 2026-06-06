@@ -1,45 +1,45 @@
 import pygame
+from Settings import (
+  pallet_colors,
+  border,
+)
 
 
 class Pallet:
-  def __init__(self):
-    self.pallet_colors = {
-      "black": {"rgb": (0, 0, 0)},
-      "red": {"rgb": (200, 0, 0)},
-      "green": {"rgb": (0, 200, 0)},
-      "blue": {"rgb": (0, 0, 200)},
-      "white": {"rgb": (200, 200, 200)},
-    }
+  def __init__(self, pos_x: int, pos_y: int = border):
+    self.selected_color = pallet_colors["red"]
+
+    self.pallet_width = 80
     self.ink_heigth = 50
-    self.selected_color = self.pallet_colors["red"]["rgb"]
+    self.pallet_gap = 2
 
-  def draw_pallet(self):
-    pallet_pos_x = self.canvas_size
-    pallet_pos_y = self.border
-    self.pallet_width = self.canvas_size * 0.2 - self.border
-    self.pallet_heigth = self.canvas_size - self.border * 2
+    self.pos_x = pos_x
+    self.pos_y = pos_y
+    self.width = self.pallet_width + border
+    self.heigth = (self.ink_heigth + self.pallet_gap) * len(pallet_colors)
 
-    container_form = pygame.Rect(
-      pallet_pos_x, pallet_pos_y, self.pallet_width, self.pallet_heigth
-    )
+  def draw_pallet(self, screen: pygame.Surface):
+    pos_y = border
 
-    self.pallet = self.screen.subsurface(container_form)
-    self.pallet.fill((25, 25, 25))
+    container_form = pygame.Rect(self.pos_x, pos_y, self.width, self.heigth)
+    self.pallet = screen.subsurface(container_form)
+    self.insert_colors()
 
   def insert_colors(self):
-    pos_y = 0
-
-    for key in self.pallet_colors:
-      self.pallet_colors[key]["ink"] = pygame.draw.rect(
+    ink_pos_y = 0
+    for key in pallet_colors:
+      pygame.draw.rect(
         self.pallet,
-        self.pallet_colors[key]["rgb"],
-        (0, pos_y, self.pallet_width - self.gap, self.ink_heigth),
+        pallet_colors[key],
+        (0, ink_pos_y, self.width - self.pallet_gap, self.ink_heigth),
       )
-      pos_y += self.ink_heigth + self.border
+      ink_pos_y += self.ink_heigth + border
 
-  def change_color(self, mouse_pos):
-    proportion_coef = self.ink_heigth + self.border
+  def change_color(self):
+    proportion_coef = self.ink_heigth + border
+    mouse_pos = pygame.mouse.get_pos()
     ink_idx = mouse_pos[1] // proportion_coef
-    inks_names = list(self.pallet_colors.keys())
-    if mouse_pos[0] > self.canvas_size and ink_idx < len(self.pallet_colors):
-      self.selected_color = self.pallet_colors[inks_names[ink_idx]]["rgb"]
+    inks_names = list(pallet_colors.keys())
+
+    if mouse_pos[0] > self.pos_x and ink_idx < len(pallet_colors):
+      self.selected_color = pallet_colors[inks_names[ink_idx]]
