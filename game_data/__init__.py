@@ -1,5 +1,5 @@
 from .colors import primary, secondary
-# from .fonts import Cambria
+from .fonts import Main_Font
 
-__all__ = ["primary", "secondary", "Cambria"]
+__all__ = ["primary", "secondary", "Main_Font"]
 print("importando dados do jogo")
