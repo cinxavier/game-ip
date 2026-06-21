@@ -1,5 +1,6 @@
 # Documentação
 
+```text
 sage_card_captor/
 │
 ├── main.py (motor do sistema)
@@ -33,3 +34,4 @@ sage_card_captor/
 │   ├── save.json
 │
 └── README.md
+```
