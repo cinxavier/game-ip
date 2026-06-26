@@ -1,16 +1,32 @@
 import pygame
-# from src.game import Game
+from typing import TYPE_CHECKING
+from utils.Button import Button
+
+if TYPE_CHECKING:
+  from src.Game import Game
 
 
 class ScreenBase:
-    def __init__(self, game):
-        self.game = game
+  def __init__(self, game: "Game"):
+    self.game = game
 
-    def handle_events(self, events: list[pygame.Event]):
-        pass
+    self.selectables: list[Button] = [None]
+    self.hovering_btn_idx = 0
+    self.selected_btn = self.selectables[self.hovering_btn_idx]
 
-    def update(self):
-        pass
+  def handle_events(self, events: list[pygame.Event]):
+    pass
 
-    def render(self, screen: pygame.Surface):
-        pass
+  def update(self):
+    pass
+
+  def surf(self, direction):
+    if direction == "n":
+      self.hovering_btn_idx += 1 if self.hovering_btn_idx < len(self.selectables) - 1 else 0  # fmt: skip
+      self.selected_btn = self.selectables[self.hovering_btn_idx]
+    elif direction == "p":
+      self.hovering_btn_idx -= 1 if self.hovering_btn_idx > 0 else 0
+      self.selected_btn = self.selectables[self.hovering_btn_idx]
+
+  def render(self, screen: pygame.Surface):
+    pass

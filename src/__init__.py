@@ -1,5 +1,5 @@
-from .game import Game
+from .Game import Game
 
 __all__ = ['Game']
 
-print('init src')
+print('importando src')

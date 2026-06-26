@@ -1,43 +1,66 @@
 import pygame
-from game_data import Main_Font, primary_dark, secondary, button_border_thickness
+from game_data import (
+  Main_Font,
+  primary_dark,
+  secondary,
+  button_border_thickness,
+  primary_light,
+)
 
 
 class Button:
-    def __init__(
-        self,
-        screen: pygame.Surface,
-        size: tuple[int, int],
-        pos: tuple[int, int],
-        text_input: str,
-    ):
-        self.screen = screen
-        self.size = self.width, self.height = size
-        self.pos = self.x, self.y = pos
+  def __init__(
+    self,
+    screen: pygame.Surface,
+    size: tuple[int, int],
+    pos: tuple[int, int],
+    text_input: str,
+  ):
+    self.screen = screen
+    self.size = self.width, self.height = size
+    self.pos = self.x, self.y = pos
 
-        container_pos = (self.pos[0] - self.size[0] / 2, self.pos[1] - self.size[1] / 2)
+    self.text_input = text_input
+    self.text = Main_Font.render(text_input, True, "white")
+    self.text_rect = self.text.get_rect(
+      center=(self.x + self.width / 2, self.y + self.height / 2 - 1 )
+    )
 
-        self.content_rect = pygame.Rect(container_pos, self.size)
-        self.border_rect = pygame.Rect(
-            container_pos[0] - button_border_thickness,
-            container_pos[1] - button_border_thickness,
-            self.width + button_border_thickness * 2,
-            self.height + button_border_thickness * 2,
-        )
+    self.is_selected = False
 
-        self.text_input = text_input
-        self.text = Main_Font.render(text_input, True, "white")
-        self.text_rect = self.text.get_rect(center=self.pos)
+  def render(self):
+    if self.is_selected:
+      pygame.draw.rect(
+        self.screen,
+        primary_light,
+        (
+          self.x - button_border_thickness * 1.5,
+          self.y - button_border_thickness * 1.5,
+          self.width + button_border_thickness * 3,
+          self.height + button_border_thickness * 3,
+        ),
+      )
 
-    def render(self):
-        self.border = pygame.draw.rect(self.screen, primary_dark, self.border_rect)
-        self.content = pygame.draw.rect(self.screen, secondary, self.content_rect)
-        self.screen.blit(self.text, self.text_rect)
+    self.border = pygame.draw.rect(
+      self.screen,
+      primary_dark,
+      (
+        self.x - button_border_thickness,
+        self.y - button_border_thickness,
+        self.width + button_border_thickness * 2,
+        self.height + button_border_thickness * 2,
+      ),
+    )
 
-    def on_hover(self):
-        self.text = Main_Font.render(self.text_input, True, "red")
+    self.content = pygame.draw.rect(self.screen, secondary, (self.pos, self.size))
 
-    def on_release(self):
-        self.text = Main_Font.render(self.text_input, True, "red")
+    self.screen.blit(self.text, self.text_rect)
 
-    def on_click(self, do_something):
-        do_something()
+  def on_hover(self):
+    self.is_selected = True
+
+  def on_release(self):
+    self.is_selected = False
+
+  def on_click(self, do_something):
+    do_something()

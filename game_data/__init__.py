@@ -1,4 +1,4 @@
-from .colors import primary_dark, primary_dark, primary_light, secondary, background
+from .colors import primary_dark, primary_light, secondary, background
 from .fonts import Main_Font
 from .components_data import button_border_thickness
 
