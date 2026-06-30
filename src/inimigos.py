@@ -1,70 +1,46 @@
 # arquivo dos inimigos alterados para o uso da biblioteca pygame - teste
+
 import random
-from .jogador import Personagem
-from .cartas import (
-  ChamaInfernal,
-  TempestadeRelampago,
-  ColapsoTitanico,
-  Escudo,
-  Barreira,
-  DomoProtetor,
-  CuraPequena,
-  CuraGrande,
-)
+import pygame 
+from jogador import Personagem
 
+class CPU(Personagem): 
+    def __init__(self, nome="CPU", x=0, y=0): 
+        super().__init__(nome, x, y) 
+        self.escolha_acao = None
+        self.escolha_forma = None
+        self.escolha_elemento = None
+        
+        self.image.fill((220, 50, 50)) 
 
-class CPU(Personagem):
-  def __init__(self, nome="CPU", x=0, y=0):
-    super().__init__(nome, x, y)  # Passa os argumentos para a classe mãe (Personagem)
-    self.ultima_carta_usada = None
+    def escolher_combo(self):
+        # A IA escolhe seu combo levando em conta seus Pontos Mágicos (MP)
+        # Ação: Cura crítica - o inimigo tenta se curar se estiver com pouca vida
+        # Mesmo com o menu do jogador usando a aba Utilitários, 
+        # internamente e para a IA essa ação se resolve chamando "cura"
+        if self.hp_pct < 0.30:
+            self.escolha_acao = "cura"
+        elif random.random() < 0.22:
+            self.escolha_acao = "defesa"
+        else:
+            self.escolha_acao = "ataque"
 
-    # --- Adaptação Visual Pygame ---
-    # Como o Personagem original é azul,o inimigo será vermelho, para diferenciá-los visualmente na tela de combate
-    self.image.fill((220, 50, 50))
+        # 2. Forma (Gerenciamento de MP)
+        opcoes_forma = []
+        if self.mp >= 6: opcoes_forma.append("triangulo")
+        if self.mp >= 4: opcoes_forma.append("quadrado")
+        if self.mp >= 2: opcoes_forma.append("circulo")
+        
+        if not opcoes_forma:
+            self.escolha_forma = "circulo" 
+        else:
+            self.escolha_forma = random.choice(opcoes_forma)
 
-  def _idx(self, *tipos):
-    for t in tipos:
-      for i, c in enumerate(self.deck):
-        if isinstance(c, t):
-          return i
-    return None
-
-  def escolher_carta(self):
-    # Cura crítica - o ininmigo tenta se curar se estiver com pouca vida
-    if self.hp_pct < 0.30:
-      idx = self._idx(CuraGrande, CuraPequena)
-      if idx is not None:
-        self.idx_carta = idx
-        return
-
-    # Colapso Titânico
-    if self.usos_fogo >= 5:
-      idx = self._idx(ColapsoTitanico)
-      if idx is not None:
-        colapso = self.deck[idx]
-        if not colapso.usado:
-          self.idx_carta = idx
-          return
-
-    # Tempestade Relâmpago
-    if self.usos_fogo >= 2 and random.random() < 0.55:
-      idx = self._idx(TempestadeRelampago)
-      if idx is not None:
-        self.idx_carta = idx
-        return
-
-    # Defesa ocasional
-    if random.random() < 0.22:
-      opcoes = [
-        i
-        for i, c in enumerate(self.deck)
-        if isinstance(c, (Escudo, Barreira, DomoProtetor))
-      ]
-      if opcoes:
-        self.idx_carta = random.choice(opcoes)
-        return
-
-    # Padrão: Chama Infernal
-    idx = self._idx(ChamaInfernal)
-    if idx is not None:
-      self.idx_carta = idx
+        # 3. Elemento
+        elementos = ["raio", "metal", "borracha"]
+        if self.escolha_acao == "ataque":
+            self.escolha_elemento = random.choices(elementos, weights=[60, 20, 20])[0]
+        elif self.escolha_acao == "defesa":
+            self.escolha_elemento = random.choices(elementos, weights=[20, 60, 20])[0]
+        else:
+            self.escolha_elemento = random.choices(elementos, weights=[20, 20, 60])[0]

@@ -1,169 +1,176 @@
 # arquivo cartas modificado para pygame - teste
 
 import pygame
-# from efeitos import Queimadura # sem uso no momento falta criar o arquivo de efeitos
 
-
-class Carta(pygame.sprite.Sprite): # classe base de carta
-    def __init__(self, nome, tipo, descricao, x=0, y=0):
+# Define a classe CartaComponente que herda de pygame.sprite.Sprite.
+class CartaComponente(pygame.sprite.Sprite): 
+    
+    def __init__(self, nome, categoria, valor, descricao, cor, x=0, y=0):
         super().__init__()
+        
+        # Define os atributos lógicos da carta que serão usados na batalha.
         self.nome = nome
-        self.tipo = tipo          
+        self.categoria = categoria 
+        self.valor = valor         
         self.descricao = descricao
+        self.cor = cor
 
-        # --- Atributos Visuais do Pygame ---
-        self.image = pygame.Surface((150, 220)) # Tamanho padrão da carta (largura, altura)
+        # Cria uma superfície gráfica (um retângulo) para a carta com largura 150 e altura 220.
+        self.image = pygame.Surface((150, 220))
         self.rect = self.image.get_rect()
-        self.rect.topleft = (x, y) # Posição X e Y da carta na tela
-
-        # Define cores de fundo automáticas baseadas no tipo da carta
-        if self.tipo == "ataque":
-            self.image.fill((180, 50, 50))    # Vermelho
-        elif self.tipo == "defesa":
-            self.image.fill((50, 50, 180))    # Azul
-        elif self.tipo == "cura":
-            self.image.fill((50, 150, 50))    # Verde
-        else:
-            self.image.fill((120, 50, 150))   # Roxo para Especial
-
-    def usar(self, usuario, alvo, estado):
-        """Retorna (mensagem: str, sucesso: bool)"""
-        raise NotImplementedError
-
-    def desenhar(self, tela, fonte_nome, fonte_desc):
-        """Método para desenhar a carta e seus textos na tela do Pygame"""
-        # Desenha o corpo (retângulo) da carta
-        tela.blit(self.image, self.rect)
-        
-        # Desenha o nome da carta
-        texto_nome = fonte_nome.render(self.nome, True, (255, 255, 255))
-        tela.blit(texto_nome, (self.rect.x + 10, self.rect.y + 10))
-        
-        # Desenha a descrição (completando o visual)
-        texto_desc = fonte_desc.render(self.descricao, True, (240, 240, 240))
-        tela.blit(texto_desc, (self.rect.x + 10, self.rect.y + 180))
+        self.rect.topleft = (x, y) 
+        self.image.fill(self.cor)
 
 
-class ChamaInfernal(Carta):
-    def __init__(self, x=0, y=0):
-        super().__init__("Chama Infernal", "ataque",
-                         "15 dano + queimadura (3t·4/t) | conta fogo", x, y)
-
-    def usar(self, usuario, alvo, estado):
-        dano = max(0, 15 - alvo.defesa_atual)
+def resolver_magia(usuario, alvo, acao, forma, elemento, estado):
+    combo = (acao, forma, elemento)
+    msg = ""
+    
+    # --- COMBINAÇÕES DE ATAQUE ---
+    if combo == ("ataque", "triangulo", "raio"):
+        dano = max(0, 75 - alvo.defesa_atual)
+        alvo.receber_dano(dano) 
+        msg = f"{usuario.nome} usou Descarga elétrica! (-{dano} HP)"
+    elif combo == ("ataque", "quadrado", "raio"):
+        dano = max(0, 50 - alvo.defesa_atual)
         alvo.receber_dano(dano)
-        alvo.defesa_atual = 0
-        usuario.usos_fogo += 1
+        msg = f"{usuario.nome} usou Matriz Estática! (-{dano} HP)"
+    elif combo == ("ataque", "circulo", "raio"):
+        dano = max(0, 30 - alvo.defesa_atual)
+        alvo.receber_dano(dano)
+        # Aplica a Paralisia no alvo. Durará 1 turno pulado.
+        if alvo.imune_paralisia == 0: alvo.paralisia = 1
+        msg = f"{usuario.nome} usou Zona De Alta-Tensão! (-{dano} HP, Paralisia)"
 
-        msg = f"{usuario.nome} usou Chama Infernal! (-{dano} HP)"
-        #if not any(isinstance(e, Queimadura) for e in alvo.efeitos):
-        #    alvo.efeitos.append(Queimadura())
-        #    msg += " + queimadura!"
-        return msg, True
+    elif combo == ("ataque", "triangulo", "metal"):
+        dano = max(0, 60 - alvo.defesa_atual)
+        alvo.receber_dano(dano)
+        msg = f"{usuario.nome} usou Lança Imparável! (-{dano} HP)"
+    elif combo == ("ataque", "quadrado", "metal"):
+        dano = max(0, 40 - alvo.defesa_atual)
+        alvo.receber_dano(dano)
+        msg = f"{usuario.nome} usou Esmagamento de Aço! (-{dano} HP)"
+    elif combo == ("ataque", "circulo", "metal"):
+        dano = max(0, 25 - alvo.defesa_atual)
+        alvo.receber_dano(dano)
+        # Aplica Envenenamento. Este status agora causa dano e durará exatos 3 turnos.
+        if alvo.imune_envenenamento == 0: alvo.envenenamento = 3
+        msg = f"{usuario.nome} usou Chuva de estilhaços! (-{dano} HP, Envenenamento)"
 
-
-class TempestadeRelampago(Carta):
-    def __init__(self, x=0, y=0):
-        super().__init__("Tempestade Relâmpago", "ataque",
-                         "35 dano | req 2x Chama | Speed +10 / inimigo -10", x, y)
-
-    def usar(self, usuario, alvo, estado):
-        if usuario.usos_fogo < 2:
-            return "Requer 2 usos de Chama Infernal!", False
+    elif combo == ("ataque", "triangulo", "borracha"):
+        dano = max(0, 50 - alvo.defesa_atual)
+        alvo.receber_dano(dano)
+        msg = f"{usuario.nome} usou Impacto Elástico! (-{dano} HP)"
+    elif combo == ("ataque", "quadrado", "borracha"):
         dano = max(0, 35 - alvo.defesa_atual)
         alvo.receber_dano(dano)
-        alvo.defesa_atual = 0
-        usuario.speed = min(100, usuario.speed + 10)
-        alvo.speed    = max(0,   alvo.speed   - 10)
-        return f"{usuario.nome} usou Tempestade Relâmpago! (-{dano} HP) Speed ±10", True
-
-
-class ColapsoTitanico(Carta):
-    def __init__(self, x=0, y=0):
-        super().__init__("Colapso Titânico", "ataque",
-                         "70 dano | req 5x Chama | uso único", x, y)
-        self.usado = False
-
-    def usar(self, usuario, alvo, estado):
-        if usuario.usos_fogo < 5:
-            return "Requer 5 usos de Chama Infernal!", False
-        if self.usado:
-            return "Colapso Titânico já foi usado!", False
-        dano = max(0, 70 - alvo.defesa_atual)
+        msg = f"{usuario.nome} usou Disparo Elástico! (-{dano} HP)"
+    elif combo == ("ataque", "circulo", "borracha"):
+        dano = max(0, 15 - alvo.defesa_atual)
         alvo.receber_dano(dano)
-        alvo.defesa_atual = 0
-        self.usado = True
-        return f"{usuario.nome} usou Colapso Titânico! (-{dano} HP) DEVASTADOR!", True
+        alvo.lentidao = 3
+        msg = f"{usuario.nome} usou Tempestade Ricochete! (-{dano} HP, Lentidão)"
 
-
-#DEFESA
-class Escudo(Carta): # defesa de maior eficácia porém concentrada em uma área menor
-    def __init__(self, x=0, y=0):
-        super().__init__("Escudo", "defesa", "+50 defesa neste turno", x, y)
-
-    def usar(self, usuario, alvo, estado): 
-        usuario.defesa_atual = 50
-        return f"{usuario.nome} ativou Escudo! (+50 def)", True
-
-
-class Barreira(Carta):  # defesa de eficácia mediana e de área de proteção intermediaria 
-    def __init__(self, x=0, y=0):
-        super().__init__("Barreira", "defesa", "+25 defesa neste turno", x, y)
-
-    def usar(self, usuario, alvo, estado):
-        usuario.defesa_atual = 25
-        return f"{usuario.nome} ativou Barreira! (+25 def)", True
-
-
-class DomoProtetor(Carta): # defesa de menor eficácia mas é a mais abrangente em questão de área coberta
-    def __init__(self, x=0, y=0):
-        super().__init__("Domo Protetor", "defesa", "+ 15 def", x, y)
-
-    def usar(self, usuario, alvo, estado):
+    # --- COMBINAÇÕES DE DEFESA ---
+    elif combo == ("defesa", "triangulo", "raio"):
+        usuario.defesa_atual = 45 
+        msg = f"{usuario.nome} usou Barreira de Luz! (+50 Defesa)"
+    elif combo == ("defesa", "quadrado", "raio"):
+        usuario.defesa_atual = 30
+        msg = f"{usuario.nome} usou Grade Eletrostática! (+30 Defesa)"
+    elif combo == ("defesa", "circulo", "raio"):
         usuario.defesa_atual = 15
-        return f"{usuario.nome} ativou Domo Protetor! (+ 15 def)", True
+        usuario.lentidao = 0
+        msg = f"{usuario.nome} usou Corrente de Dispersão! (+15 Defesa, Cancela Lentidão)"
+        
+    elif combo == ("defesa", "triangulo", "metal"):
+        usuario.defesa_atual = 70
+        msg = f"{usuario.nome} usou Escudo intransponível! (+50 Defesa)"
+    elif combo == ("defesa", "quadrado", "metal"):
+        usuario.defesa_atual = 50
+        msg = f"{usuario.nome} usou Muralha de Aço! (+30 Defesa)"
+    elif combo == ("defesa", "circulo", "metal"):
+        usuario.defesa_atual = 30
+        usuario.imune_envenenamento = 3 
+        msg = f"{usuario.nome} usou Grade de Isolamento! (+15 Defesa, imune a envenenamento por 3 turnos)"
 
+    elif combo == ("defesa", "triangulo", "borracha"):
+        usuario.defesa_atual = 55
+        msg = f"{usuario.nome} usou Absorção de Impacto! (+50 Defesa)"
+    elif combo == ("defesa", "quadrado", "borracha"):
+        usuario.defesa_atual = 35
+        msg = f"{usuario.nome} usou Barreira Elástica! (+30 Defesa)"
+    elif combo == ("defesa", "circulo", "borracha"):
+        usuario.defesa_atual = 20
+        usuario.paralisia = 0 
+        msg = f"{usuario.nome} usou Domo de borracha! (+15 Defesa, Cancela Paralisia)"
 
-#CURA
-class CuraPequena(Carta): 
-    def __init__(self, x=0, y=0):
-        super().__init__("Cura Pequena", "cura", "Recupera 20 HP", x, y)
+    # --- COMBINAÇÕES DE CURA ---
+    elif combo == ("cura", "triangulo", "raio"):
+        ganho = usuario.curar(45) 
+        msg = f"{usuario.nome} usou Pulso Vital! (+{ganho} HP)"
+    elif combo == ("cura", "quadrado", "raio"):
+        ganho = usuario.curar(30)
+        msg = f"{usuario.nome} usou Descarga Estática! (+{ganho} HP)"
+    elif combo == ("cura", "circulo", "raio"):
+        ganho = usuario.curar(15)
+        usuario.imune_paralisia = 3 
+        msg = f"{usuario.nome} usou Carga de Regeneração! (+{ganho} HP, Imune Paralisia)"
 
-    def usar(self, usuario, alvo, estado):
+    elif combo == ("cura", "triangulo", "metal"):
+        ganho = usuario.curar(50)
+        msg = f"{usuario.nome} usou Toque de Restauro Metálico! (+{ganho} HP)"
+    elif combo == ("cura", "quadrado", "metal"):
+        ganho = usuario.curar(40)
+        msg = f"{usuario.nome} usou Forja Celular! (+{ganho} HP)"
+    elif combo == ("cura", "circulo", "metal"):
         ganho = usuario.curar(20)
-        return f"{usuario.nome} usou Cura Pequena! (+{ganho} HP)", True
+        usuario.imune_envenenamento = 3 
+        msg = f"{usuario.nome} usou Sutura de Mercúrio! (+{ganho} HP, Imune Envenenamento)"
 
+    elif combo == ("cura", "triangulo", "borracha"):
+        ganho = usuario.curar(70)
+        msg = f"{usuario.nome} usou Retorno de Vitalidade! (+{ganho} HP)"
+    elif combo == ("cura", "quadrado", "borracha"):
+        ganho = usuario.curar(50)
+        msg = f"{usuario.nome} usou fricção Curativa! (+{ganho} HP)"
+    elif combo == ("cura", "circulo", "borracha"):
+        ganho = usuario.curar(30)
+        usuario.imune_envenenamento = 3 
+        msg = f"{usuario.nome} usou Forma Restauradora! (+{ganho} HP, Imune Envenenamento)"
 
-class CuraGrande(Carta):
-    def __init__(self, x=0, y=0):
-        super().__init__("Cura Grande", "cura", "Recupera 35 HP", x, y)
+    alvo.defesa_atual = 0 
+    
+    return msg, True
 
-    def usar(self, usuario, alvo, estado):
-        ganho = usuario.curar(35)
-        return f"{usuario.nome} usou Cura Grande! (+{ganho} HP)", True
-
-
-# ESPECIAL
-class Fuga(Carta):
-    def __init__(self, x=0, y=0):
-        super().__init__("Fuga", "especial", "Sai imediatamente da batalha", x, y)
-
-    def usar(self, usuario, alvo, estado):
-        estado["fugiu"] = True
-        return f"{usuario.nome} fugiu da batalha!", True
-
-
-#DECK PADRÃO
-def criar_deck():
+# DECKS PARA CADA FASE
+def obter_deck_acao():
     return [
-        ChamaInfernal(),
-        TempestadeRelampago(),
-        ColapsoTitanico(),
-        Escudo(),
-        Barreira(),
-        DomoProtetor(),
-        CuraPequena(),
-        CuraGrande(),
-        Fuga(),
+        CartaComponente("Ataque", "acao", "ataque", "Inicia um ataque", (180, 50, 50)),
+        CartaComponente("Defesa", "acao", "defesa", "Inicia uma defesa", (50, 50, 180)),
+        CartaComponente("Utilitários", "acao", "utilitarios", "Aba de itens e curas", (50, 150, 50)),
+        CartaComponente("Fuga", "fuga", "fuga", "Fugir imediatamente", (100, 100, 100))
     ]
 
+def obter_deck_utilitarios():
+    return [
+        CartaComponente("Cura", "utilitario", "cura", "Magias de Cura", (50, 150, 50)),
+        CartaComponente("Inventário", "utilitario", "inventario", "Abre inventário (em breve)", (150, 100, 50)),
+        CartaComponente("Voltar", "voltar", "voltar", "Voltar etapa", (100, 100, 100))
+    ]
+
+def obter_deck_forma():
+    return [
+        CartaComponente("Triângulo", "forma", "triangulo", "Focado / 6 MP", (120, 50, 150)),
+        CartaComponente("Quadrado", "forma", "quadrado", "Mediano / 4 MP", (120, 50, 150)),
+        CartaComponente("Círculo", "forma", "circulo", "Área-Efeitos / 2 MP", (120, 50, 150)),
+        CartaComponente("Voltar", "voltar", "voltar", "Voltar etapa", (100, 100, 100)) 
+    ]
+
+def obter_deck_elemento():
+    return [
+        CartaComponente("Raio", "elemento", "raio", "Alto Dano", (220, 80, 20)),
+        CartaComponente("Metal", "elemento", "metal", "Alta Defesa", (200, 180, 20)),
+        CartaComponente("Borracha", "elemento", "borracha", "Alta Cura", (20, 120, 220)),
+        CartaComponente("Voltar", "voltar", "voltar", "Voltar etapa", (100, 100, 100)) 
+    ]
