@@ -6,7 +6,7 @@ class ComportamentodoNpcNoMapa:
         #Tela em que o rect será gerado
         self.tela = tela
 
-        ##Atributos do NPC
+        #Atributos do NPC
         self.velocidade = velocidade
         self.percurso = percurso
         self.npc_larg_hitbox = npc_larg_hitbox
@@ -47,7 +47,7 @@ class ComportamentodoNpcNoMapa:
                     else:
                         self.sentido_domovimento = 'D'
             else:
-
+                
                 #Movimentação em no eixo x
                 if self.NPChitbox.x > self.percurso[self.index_doponto][0]:
                     self.NPChitbox.x -= self.velocidade
