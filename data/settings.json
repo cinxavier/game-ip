@@ -1,4 +1,8 @@
 {
+  "original_resolution": [
+    1366,
+    768
+  ],
   "tile_size": 3,
   "tiles_amount": [
     422,

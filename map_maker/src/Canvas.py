@@ -35,18 +35,19 @@ class Canvas:
   def save_map(self):
     with open("data/settings.json", "w") as data:
       settings = {
+        "original_resolution": list(pygame.display.get_desktop_sizes()[0]),
         "tile_size": TILE_SIZE,
         "tiles_amount": (self.tiles_amount_x, self.tiles_amount_y),
         "pallet_colors": pallet_colors,
       }
       json.dump(settings, data, indent=2)
 
-    with open("data/cache.json", "w") as cache:
+    with open("data/original.json", "w") as cache:
       json.dump(self.object_position_list, cache, indent=2)
 
   def load_save(self):
     try:
-      with open("data/cache.json") as data:
+      with open("data/original.json") as data:
         cache = json.load(data)
 
         if len(cache) > 0:
