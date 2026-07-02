@@ -1,12 +1,12 @@
 {
   "original_resolution": [
-    1920,
-    1080
+    1366,
+    768
   ],
-  "tile_size": 4,
+  "tile_size": 3,
   "tiles_amount": [
-    455,
-    245
+    422,
+    222
   ],
   "pallet_colors": {
     "red": [

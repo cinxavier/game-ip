@@ -32,7 +32,7 @@ BORDER = 5
 
 # cnavas props
 CANVAS_GAP = 1
-TILE_SIZE = 3
+TILE_SIZE = 4
 PALLET_WIDTH = 50
 
 CANVAS_SIZE = (screen_width, screen_height)

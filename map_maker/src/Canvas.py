@@ -109,7 +109,7 @@ class Canvas:
             clicked_slot[0] = color_idx
             if clicked_slot not in self.object_position_list:
               self.object_position_list.append(clicked_slot)
-    self.update()
+    self.update()          
 
   def clean_all(self):
     self.object_position_list = []
