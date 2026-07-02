@@ -10,7 +10,7 @@ class ScreenBase:
     self.hovering_btn_idx = 0
     self.selected_btn = self.selectables[self.hovering_btn_idx]
 
-  def handle_events(self, events: list[pygame.Event]):
+  def handle_events(self, events: list[pygame.event.Event]):
     pass
 
   def update(self):

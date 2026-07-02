@@ -2,6 +2,24 @@
 
 import pygame
 
+from inventario import Inventario
+import sprites
+
+inventario = Inventario()
+
+sprite_carta = {
+    "cura": pygame.image.load("game-ip/assets/images/Cartas/Utilitarios/cura.png").convert_alpha(),
+    "mana": pygame.image.load("game-ip/assets/images/Cartas/Utilitarios/bencao.png").convert_alpha(),
+    "imunidade": pygame.image.load("game-ip/assets/images/Cartas/Utilitarios/invisibilidade.png").convert_alpha()
+}
+
+sprite_player = pygame.image.load("game-ip/assets/images/Player/parado_frente.png").convert_alpha()
+
+inventario.definir_sprite_player(sprite_player)
+inventario.definir_sprites_cartas(sprite_carta)
+
+
+
 class Personagem(pygame.sprite.Sprite): 
     HP_MAX      = 200
     MP_MAX      = 8 
