@@ -2,7 +2,7 @@ import pygame
 
 ###COLETAVEL###
 
-def coletavel_forma():
+def coletavel_cura():
     return [
         pygame.image.load("assets/images/Coletavel/Forma/one.png").convert_alpha(),
         pygame.image.load("assets/images/Coletavel/Forma/two.png").convert_alpha(),
@@ -10,7 +10,7 @@ def coletavel_forma():
         pygame.image.load("assets/images/Coletavel/Forma/four.png").convert_alpha()
         ]
 
-def coletavel_elemento():
+def coletavel_imunidade():
     return [
         pygame.image.load("assets/images/Coletavel/Elemental/one.png").convert_alpha(),
         pygame.image.load("assets/images/Coletavel/Elemental/two.png").convert_alpha(),
@@ -18,7 +18,7 @@ def coletavel_elemento():
         pygame.image.load("assets/images/Coletavel/Elemental/four.png").convert_alpha()
     ]
 
-def coletavel_utilitario():
+def coletavel_mana():
     return [
         pygame.image.load("assets/images/Coletavel/Utilitario/one.png").convert_alpha(),
         pygame.image.load("assets/images/Coletavel/Utilitario/two.png").convert_alpha(),

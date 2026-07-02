@@ -3,6 +3,10 @@ import sprites as sprite
 
 pygame.init()
 
+inventario = Inventario()
+
+
+
 ###TELA###
 tamanho_tela = pygame.display.get_desktop_sizes()
 # tamanho_tela[0] -= 40
@@ -95,21 +99,66 @@ class Player:
     tela.blit(personagem, (1280 // 2, 720 // 2))
 
 
+
 ###Coletavel###
-coletavel_forma = sprite.coletavel_forma()
 
-coletavel_elemental = sprite.coletavel_elemento()
+class Coletavel:
+    def __init__(self, tipo):
+        if tipo == 'cura':
+            self.sprite = sprites.coletavel_cura()
+        elif tipo == 'mana':
+            self.sprite = sprites.coletavel_mana()
+        elif tipo == 'imunidade':
+            self.sprite = sprites.coletavel_imunidade()
+        self.frame = 0
+        self.image = self.sprite[0]
 
-coletavel_utilitario = sprite.coletavel_utilitario()
+    def update_coletavel(self, x, y):
+        self.frame += 0.1
+        self.x = x
+        self.y = y
+        self.retangulo = pygame.Rect(x, y, 32, 32)
+    
+        if self.frame > len(self.sprite):
+            self.frame = 0
+
+        self.image = self.sprite[int(self.frame)]
+
+    def draw_coletavel(self, tela):
+        tamanho_sprite = (32, 32)
+        
+        carta = pygame.transform.scale(self.image, tamanho_sprite)
+        tela.blit(carta, (self.x, self.y))
+
+
+
 player = Player()
+
+cura = Coletavel("cura")
+cura1 = Coletavel("cura")
+cura2 = Coletavel("cura")
+cura3 = Coletavel("cura")
+cura4 = Coletavel("cura")
+cura5 = Coletavel("cura")
+
+mana = Coletavel("mana")
+mana1 = Coletavel("mana")
+mana2 = Coletavel("mana")
+mana3 = Coletavel("mana")
+mana4 = Coletavel("mana")
+mana5 = Coletavel("mana")
+
+imunidade = Coletavel("imunidade")
+imunidade1 = Coletavel("imunidade")
+imunidade2 = Coletavel("imunidade")
 
 time = pygame.Clock()
 
 continua = True
-frame1 = 0
-frame2 = 0
-frame3 = 0
 
+
+carta_selecionada = True
+invent = False
 while continua:
   ###Camera###
   camera_x = player.x - 7955 // 2
