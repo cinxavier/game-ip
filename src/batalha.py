@@ -1,35 +1,28 @@
 # arquivo de batalha em pygame - teste
 
-from .jogador import Personagem
-from .inimigos import CPU
-
-# Importando novos decks (sem a necessidade de renderização aqui)
-from .cartas import (
-  obter_deck_acao,
-  obter_deck_utilitarios,
-  obter_deck_forma,
-  obter_deck_elemento,
-  resolver_magia,
-)
+from jogador import Personagem, desenhar_personagem
+from inimigos import CPU
+from cartas import obter_deck_acao, obter_deck_utilitarios, obter_deck_forma, obter_deck_elemento, resolver_magia, desenhar_carta
 
 # PREPARAÇÃO PARA O INVENTÁRIO (Desabilitado até a criação do arquivo)
 try:
-  from inventario import Inventario  # Quando o arquivo inventario.py for criado, isso funcionará
-
-  SISTEMA_INVENTARIO_ATIVO = True
+    import inventario # Quando o arquivo inventario.py for criado, isso funcionará
+    SISTEMA_INVENTARIO_ATIVO = True
 except ImportError:
-  SISTEMA_INVENTARIO_ATIVO = False
+    SISTEMA_INVENTARIO_ATIVO = False
 
 _ESPERA   = "espera"
 _ANIMANDO = "animando"
 _FIM      = "fim"
+
+COR_DESTAQUE = (255, 215, 0)
+COR_TEXTO = (220, 220, 220)
 
 class Batalha:
     LOG_MAX   = 7 # quantidade maxima de mensagens na tela
     DELAY_FPS = 38 # Cria um intervalo de tempo, medido em quadros (frames), entre as ações automáticas de um turno.
 
     def __init__(self, nome_jogador): 
-        # Os personagens nascem na posição 0,0 pois o arquivo render.py agora se encarrega de posicioná-los dinamicamente de acordo com a resolução.
         self.jogador   = Personagem(nome_jogador, x=0, y=0)
         self.cpu       = CPU("boss", "borracha", 400, nome="Computador", x=0, y=0)
         self.log       = ["⚔️  Batalha iniciada!", "Escolha sua AÇÃO (Ataque, Defesa, Utilitários, Fuga)."]
@@ -253,3 +246,64 @@ class Batalha:
         self.log.append(msg)
         if len(self.log) > self.LOG_MAX:
             self.log.pop(0)
+
+def renderizar_batalha(tela, batalha, largura, altura, fonte_log, fonte_carta):
+    
+    # Adaptação das posições dos personagens para serem dinâmicas (relativas à largura e altura atuais)
+    batalha.jogador.rect.topleft = (largura * 0.20, altura * 0.40)
+    batalha.cpu.rect.topleft = (largura * 0.75, altura * 0.40)
+
+    # Desenha jogadores e HUDs
+    desenhar_personagem(tela, batalha.jogador, fonte_log)
+    desenhar_personagem(tela, batalha.cpu, fonte_log)
+
+    # Desenha a Mão de Cartas
+    if batalha.aguardando_input and batalha.deck_atual:
+        # Espaçamento de cartas baseado na largura da tela
+        espacamento = max(160, int(largura * 0.10))
+        largura_carta = 150
+        total_cartas = len(batalha.deck_atual)
+        
+        largura_total = (total_cartas - 1) * espacamento + largura_carta
+        x_inicial = (largura - largura_total) // 2
+        
+        y_base = altura - 280
+        y_selecionada = altura - 330
+        
+        # Desenha as não selecionadas por baixo
+        for i, carta in enumerate(batalha.deck_atual):
+            if i != batalha.idx_carta: 
+                desenhar_carta(tela, carta, x_inicial + (i * espacamento), y_base, False, fonte_log, fonte_carta)
+        
+        # Desenha a selecionada destacada por cima
+        if batalha.idx_carta < len(batalha.deck_atual):
+            carta_atual = batalha.deck_atual[batalha.idx_carta]
+            desenhar_carta(tela, carta_atual, x_inicial + (batalha.idx_carta * espacamento), y_selecionada, True, fonte_log, fonte_carta)
+
+    # Textos da Interface alinhados de forma dinâmica
+    texto_turno = fonte_log.render(f"Turno: {batalha.turno}", True, COR_DESTAQUE)
+    tela.blit(texto_turno, ((largura // 2) - (texto_turno.get_width() // 2), 20))
+
+    # Indicador dinâmico de estado de aba (Ação, Utilitários, Forma, Elemento, Inventário)
+    if batalha.aguardando_input:
+        if batalha.estado_menu == "inventario":
+            fase_txt = "INVENTÁRIO (Pronto para implementação)"
+        else:
+            fase_txt = batalha.estado_menu.upper()
+            
+        texto_estado = fonte_log.render(f"Aba de {fase_txt}! (Setas escolher, ENTER usar)", True, (100, 255, 100))
+    elif batalha.encerrada:
+        texto_estado = fonte_log.render("Pressione ESC para sair", True, (255, 100, 100))
+    else:
+        texto_estado = fonte_log.render("Aguarde...", True, (200, 200, 200))
+    tela.blit(texto_estado, (20, altura - 50))
+
+    # Logs da batalha (centralizados no meio superior da tela dinamicamente)
+    y_offset = altura * 0.12
+    for i, msg in enumerate(batalha.log):
+        opacidade = 255 if i == len(batalha.log) - 1 else 180
+        surface_texto = fonte_log.render(msg, True, COR_TEXTO)
+        surface_texto.set_alpha(opacidade)
+        # Centralizando os logs com base na largura atual da janela
+        tela.blit(surface_texto, ((largura // 2) - (surface_texto.get_width() // 2), y_offset))
+        y_offset += 35
