@@ -1,8 +1,8 @@
 {
-  "tile_size": 10,
+  "tile_size": 3,
   "tiles_amount": [
-    120,
-    80
+    422,
+    222
   ],
   "pallet_colors": {
     "red": [
