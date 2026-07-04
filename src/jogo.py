@@ -1,4 +1,5 @@
 import pygame
+import json
 import sprites as sprite
 
 pygame.init()
@@ -7,22 +8,25 @@ pygame.init()
 ###TELA###
 # tamanho_tela[0] -= 40
 tamanho_tela = pygame.display.get_desktop_sizes()[0]
-tela = pygame.display.set_mode((800, 600))
+tela = pygame.display.set_mode(tamanho_tela, pygame.FULLSCREEN)
 largura_tela, altura_tela = tela.size
 
 pygame.display.set_caption("Aventura Magica")
 
 mapa = pygame.image.load("assets/images/Mapa.png").convert_alpha()
-escala = 8
-mapa = pygame.transform.scale(mapa, (largura_tela * escala, altura_tela * escala))
+escala = 2
+mapa = pygame.transform.scale(mapa, (largura_tela, altura_tela))
+
+paredes = []
+with open("data/original.json", "r") as file:
+    paredes = json.load(file)
 
 
-###PLAYER###
 class Player:
     def __init__(self):
-        self.x = 0
-        self.y = 0
         self.tamanho_sprite = self.largura_sprite, self.altura_sprite = (96, 96)
+        self.x = 0
+        self.y = (self.altura_sprite - self.altura_sprite) / 2
 
         self.sprites_jogador = sprite.Player()
         self.direcao = sprite.FRENTE
@@ -34,7 +38,7 @@ class Player:
 
         self.imagem = self.sprites_atuais[int(self.frame)]
 
-        self.delta_v = 10
+        self.delta_v = 40
 
     def eventos(self):
 
@@ -43,41 +47,29 @@ class Player:
         self.sprites_atuais = self.sprites_jogador.andando(self.direcao)
 
         if tecla[pygame.K_a] or tecla[pygame.K_LEFT]:
-            self.frame += self.next_frame
             self.direcao = sprite.ESQUERDA
-
-            if self.x + self.delta_v >= barreira.left:
-                self.x -= self.delta_v
+            self.x -= self.delta_v
 
         elif tecla[pygame.K_d] or tecla[pygame.K_RIGHT]:
-            self.frame += self.next_frame
             self.direcao = sprite.DIREITA
-
-            if self.x - self.delta_v <= barreira.right:
-                self.x += self.delta_v
+            self.x += self.delta_v
 
         elif tecla[pygame.K_w] or tecla[pygame.K_UP]:
-            self.frame += self.next_frame
             self.direcao = sprite.COSTAS
-
-            if self.y + self.delta_v >= barreira.top:
-                self.y -= self.delta_v
+            self.y -= self.delta_v
 
         elif tecla[pygame.K_s] or tecla[pygame.K_DOWN]:
-            self.frame += self.next_frame
             self.direcao = sprite.FRENTE
-
-            if self.y - self.delta_v <= barreira.bottom:
-                self.y += self.delta_v
+            self.y += self.delta_v
 
         else:
             self.frame = 0
             self.sprites_atuais = self.sprites_jogador.parado(self.direcao)
 
+    def update(self):
+        self.frame += self.next_frame
         if self.frame >= len(self.sprites_atuais):
             self.frame = 0
-
-    def update(self):
         self.imagem = self.sprites_atuais[int(self.frame)]
         self.imagem = pygame.transform.scale(self.imagem, self.tamanho_sprite)
 
@@ -131,13 +123,9 @@ elemento = Coletavel("elemento", (300, 100))
 util = Coletavel("util", (300, 100))
 
 tempo = pygame.Clock()
+
 rodando = True
 while rodando:
-    camera_x = player.x - largura_tela /2
-    camera_y = player.y - altura_tela /2
-
-    barreira = pygame.Rect(camera_x, camera_y, largura_tela, altura_tela)
-
     tempo.tick(30)
 
     for evento in pygame.event.get():
@@ -152,13 +140,32 @@ while rodando:
     player.eventos()
     player.update()
 
-    area_parcial = pygame.Rect(
-        camera_x,
-        camera_y,
-        largura_tela,
-        altura_tela,
-    )
-    tela.blit(mapa, (0, 0), area_parcial)
+    pov_x = int(largura_tela / escala)
+    pov_y = int(altura_tela / escala)
+
+    camera_x = int(player.x - pov_x // 2)
+    camera_y = int(player.y - pov_y // 2)
+
+    camera_x = max(0, min(camera_x, mapa.get_width() - pov_x))
+    camera_y = max(0, min(camera_y, mapa.get_height() - pov_y))
+
+    area_parcial = mapa.subsurface((camera_x, camera_y, pov_x, pov_y))
+    area_parcial = pygame.transform.smoothscale(area_parcial, tela.size)
+
+    tela.blit(area_parcial, (0, 0))
+    # for tijolo in paredes:
+    #     reta = tijolo[1]
+    # pygame.draw.rect(
+    #     tela,
+    #     (255, 0, 0),
+    #     (
+    #         reta[0] - player.x,
+    #         reta[1] - player.y,
+    #         reta[2],
+    #         reta[3],
+    #     ),
+    # )
+
     player.render(tela)
 
     pygame.display.flip()
