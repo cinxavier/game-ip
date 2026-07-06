@@ -1,18 +1,17 @@
 import pygame
 
 pygame.init()
-screen_width, screen_height = pygame.display.get_desktop_sizes()[0]
 
 type rgb_type = tuple[int, int, int]
 type pos_type = tuple[int, int]
 type size_type = tuple[int, int]
 
-screen_colors = {
+SCREEN_COLORS = {
     "bg_color": (30, 30, 30, 0),
     "tile_color": (50, 50, 50, 0),
 }
 
-pallet_colors = {  # cores presentes na paleta
+PALLET_COLORS = {  # cores presentes na paleta
     "red": (200, 0, 0, 9),
     "green": (0, 200, 0, 9),
     "blue": (0, 0, 200, 9),
@@ -21,17 +20,18 @@ pallet_colors = {  # cores presentes na paleta
 }
 
 # global props
-BORDER = 5
+BORDER = 0
 
 # cnavas props
 CANVAS_GAP = 0
-TILE_SIZE = 10
+
+TILE_SIZE = 16
+
+SCREEN_WIDTH, SCREEN_HEIGHT = pygame.display.get_desktop_sizes()[0]
+PROPORION_HW = SCREEN_HEIGHT / SCREEN_WIDTH
+
+CANVAS_WIDTH = SCREEN_WIDTH
+CANVAS_HEIGHT = CANVAS_WIDTH * PROPORION_HW
+CANVAS_SIZE = (CANVAS_WIDTH, CANVAS_HEIGHT)
+
 PALLET_WIDTH = 50
-
-CANVAS_SIZE = (screen_width, screen_height)
-
-proportion = 100
-CANVAS_SIZE = (CANVAS_SIZE[0] - proportion, CANVAS_SIZE[1] - proportion)
-
-print(CANVAS_SIZE[0] / TILE_SIZE)
-print(CANVAS_SIZE[1] / TILE_SIZE)

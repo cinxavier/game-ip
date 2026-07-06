@@ -1,5 +1,5 @@
 import pygame
-from Settings import pallet_colors, BORDER, PALLET_WIDTH
+from map_maker.Settings import PALLET_COLORS, BORDER, PALLET_WIDTH
 
 
 class Pallet:
@@ -13,7 +13,7 @@ class Pallet:
     self.pos_y = pos_y
 
     self.width = PALLET_WIDTH + BORDER
-    self.heigth = (self.ink_heigth + self.gap) * len(pallet_colors)
+    self.heigth = (self.ink_heigth + self.gap) * len(PALLET_COLORS)
 
   def draw_pallet(self, screen: pygame.Surface):
     pos_y = BORDER
@@ -24,10 +24,10 @@ class Pallet:
 
   def insert_colors(self):
     ink_pos_y = 0
-    for key in pallet_colors:
+    for key in PALLET_COLORS:
       pygame.draw.rect(
         self.pallet,
-        pallet_colors[key],
+        PALLET_COLORS[key],
         (0, ink_pos_y, self.width - self.gap, self.ink_heigth),
       )
       ink_pos_y += self.ink_heigth + self.gap
@@ -37,5 +37,5 @@ class Pallet:
     mouse_pos = pygame.mouse.get_pos()
     ink_idx = mouse_pos[1] // proportion_coef
 
-    if mouse_pos[0] > self.pos_x and ink_idx < len(pallet_colors):
+    if mouse_pos[0] > self.pos_x and ink_idx < len(PALLET_COLORS):
       self.selected_color = ink_idx

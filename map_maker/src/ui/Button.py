@@ -1,5 +1,5 @@
 import pygame
-from Settings import rgb_type, pos_type, size_type
+from map_maker.Settings import rgb_type, pos_type, size_type
 
 
 class Button:

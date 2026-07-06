@@ -14,19 +14,21 @@ largura_tela, altura_tela = tela.size
 pygame.display.set_caption("Aventura Magica")
 
 mapa = pygame.image.load("assets/images/Mapa.png").convert_alpha()
-escala = 2
-mapa = pygame.transform.scale(mapa, (largura_tela, altura_tela))
+escala = 4.5
+# escala = 1
+mapa = pygame.transform.scale(mapa, (tela.get_width(), tela.get_height()))
 
 paredes = []
-with open("data/original.json", "r") as file:
+with open("data/tile_map.json", "r") as file:
     paredes = json.load(file)
 
 
 class Player:
     def __init__(self):
-        self.tamanho_sprite = self.largura_sprite, self.altura_sprite = (96, 96)
+        self.tamanho_sprite = self.largura, self.altura = (96, 96)
         self.x = 0
-        self.y = (self.altura_sprite - self.altura_sprite) / 2
+        self.y = (self.altura - self.altura) / 2
+        self.rect = pygame.Rect(self.x, self.y, self.largura, self.altura)
 
         self.sprites_jogador = sprite.Player()
         self.direcao = sprite.FRENTE
@@ -38,7 +40,7 @@ class Player:
 
         self.imagem = self.sprites_atuais[int(self.frame)]
 
-        self.delta_v = 40
+        self.delta_v = 10
 
     def eventos(self):
 
@@ -52,7 +54,14 @@ class Player:
 
         elif tecla[pygame.K_d] or tecla[pygame.K_RIGHT]:
             self.direcao = sprite.DIREITA
-            self.x += self.delta_v
+            livre = True
+            for tijolo in paredes:
+                if livre and self.x >= tijolo[1][0] / escala:
+                    livre = False
+            if livre:
+                self.x += self.delta_v
+            else:
+                self.x = tijolo[1][0] / escala
 
         elif tecla[pygame.K_w] or tecla[pygame.K_UP]:
             self.direcao = sprite.COSTAS
@@ -67,6 +76,9 @@ class Player:
             self.sprites_atuais = self.sprites_jogador.parado(self.direcao)
 
     def update(self):
+        self.x = max(0, min(mapa.get_width() - tela.get_width() / escala, self.x))
+        self.y = max(0, min(mapa.get_height() - tela.get_height() / escala, self.y))
+
         self.frame += self.next_frame
         if self.frame >= len(self.sprites_atuais):
             self.frame = 0
@@ -77,13 +89,20 @@ class Player:
         tela.blit(
             self.imagem,
             (
-                largura_tela / 2 - self.largura_sprite / 2,
-                altura_tela / 2 - self.altura_sprite / 2,
+                largura_tela / 2 - self.largura / 2,
+                altura_tela / 2 - self.altura / 2,
             ),
         )
-
-
-###Coletavel###
+        pygame.draw.rect(
+            tela,
+            (0, 200, 100),
+            (
+                largura_tela / 2 - self.largura / 2,
+                altura_tela / 2 - self.altura / 2,
+                self.rect.w,
+                self.rect.h,
+            ),
+        )
 
 
 class Coletavel:
@@ -117,14 +136,10 @@ class Coletavel:
 
 
 player = Player()
-
-forma = Coletavel("forma", (300, 100))
-elemento = Coletavel("elemento", (300, 100))
-util = Coletavel("util", (300, 100))
-
 tempo = pygame.Clock()
-
 rodando = True
+
+txt = pygame.font.Font("assets/fonts/main_font.ttf")
 while rodando:
     tempo.tick(30)
 
@@ -140,32 +155,35 @@ while rodando:
     player.eventos()
     player.update()
 
-    pov_x = int(largura_tela / escala)
-    pov_y = int(altura_tela / escala)
-
-    camera_x = int(player.x - pov_x // 2)
-    camera_y = int(player.y - pov_y // 2)
-
-    camera_x = max(0, min(camera_x, mapa.get_width() - pov_x))
-    camera_y = max(0, min(camera_y, mapa.get_height() - pov_y))
-
-    area_parcial = mapa.subsurface((camera_x, camera_y, pov_x, pov_y))
+    area_parcial = mapa.subsurface(
+        (
+            min(player.x, mapa.get_width() - tela.get_width() / escala),
+            min(player.y, mapa.get_height() - tela.get_height() / escala),
+            tela.get_width() / escala,
+            tela.get_height() / escala,
+        )
+    )
     area_parcial = pygame.transform.smoothscale(area_parcial, tela.size)
 
     tela.blit(area_parcial, (0, 0))
-    # for tijolo in paredes:
-    #     reta = tijolo[1]
-    # pygame.draw.rect(
-    #     tela,
-    #     (255, 0, 0),
-    #     (
-    #         reta[0] - player.x,
-    #         reta[1] - player.y,
-    #         reta[2],
-    #         reta[3],
-    #     ),
-    # )
+    for tijolo in paredes:
+        reta = tijolo[1]
+        pygame.draw.rect(
+            tela,
+            (255, 0, 0),
+            (
+                reta[0] * escala - player.x * escala,
+                reta[1] * escala - player.y * escala,
+                reta[2] * escala,
+                reta[3] * escala,
+            ),
+        )
+    player_x = txt.render(str(player.x + player.largura), False, (255, 255, 255))
+    parede_x = txt.render(str(paredes[0][1][0]), False, (255, 255, 255))
 
+    tela.blit(player_x, (10, 10))
+    tela.blit(parede_x, (10, 30))
+    pygame.draw.rect(tela, (0, 0, 255), (player.x * escala, player.y, 20, 20))
     player.render(tela)
 
     pygame.display.flip()

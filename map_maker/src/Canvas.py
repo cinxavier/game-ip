@@ -1,128 +1,177 @@
 import json
 import pygame
 from Settings import (
-  screen_colors,
-  pallet_colors,
-  BORDER,
-  CANVAS_SIZE,
-  TILE_SIZE,
+    PALLET_COLORS,
+    TILE_SIZE,
 )
+
+txt = pygame.font.Font("assets/fonts/main_font.ttf", 24)
 
 
 class Canvas:
-  def __init__(self, screen: pygame.Surface):
+    def __init__(self, screen: pygame.Surface):
 
-    self.object_position_list: list[tuple[int, pygame.Rect]] = []  # matrix da tela
+        self.tile_map: list[tuple[int, pygame.Rect]] = []  # matrix da tela
+        self.colors = tuple(PALLET_COLORS.keys())
 
-    self.saveless_grid: list[int] = []
-    self.colors = tuple(pallet_colors.keys())
+        self.screen = screen
 
-    self.canvas = screen
+        # tamanho da tela, calculada pela relação dos tijolos bordas e gaps
+        self.tiles_amount_x = self.screen.get_width() // TILE_SIZE
+        self.tiles_amount_y = self.screen.get_height() // TILE_SIZE
 
-    # tamanho da tela, calculada pela relação dos tijolos bordas e gaps
-    self.tiles_amount_x = int(CANVAS_SIZE[0] / TILE_SIZE)
-    self.tiles_amount_y = int(CANVAS_SIZE[1] / TILE_SIZE)
+        self.canvas_width = self.tiles_amount_x * TILE_SIZE
+        self.canvas_height = self.tiles_amount_y * TILE_SIZE
 
-    map = pygame.image.load("map_maker/src/Mapa.png").convert_alpha()
-    self.map = pygame.transform.scale(
-      map, (CANVAS_SIZE[0] - BORDER * 2, CANVAS_SIZE[1] - BORDER * 2)
-    )
+        self.last_width = self.canvas_width
+        self.last_height = self.canvas_height
 
-    self.create_grid()
-    self.draw_grid()
-    self.load_save()
-
-  def save_map(self):
-    with open("data/settings.json", "w") as data:
-      settings = {
-        "original_resolution": list(pygame.display.get_desktop_sizes()[0]),
-        "tile_size": TILE_SIZE,
-        "tiles_amount": (self.tiles_amount_x, self.tiles_amount_y),
-        "pallet_colors": pallet_colors,
-      }
-      json.dump(settings, data, indent=2)
-
-    with open("data/original.json", "w") as cache:
-      json.dump(self.object_position_list, cache, indent=2)
-
-  def load_save(self):
-    try:
-      with open("data/original.json") as data:
-        cache = json.load(data)
-
-        if len(cache) > 0:
-          self.object_position_list = cache
-          self.last_len = len(self.object_position_list)
-          screen_w_range = range(CANVAS_SIZE[0])
-          screen_h_range = range(CANVAS_SIZE[1])
-
-          for slot in self.object_position_list:
-            rect = pygame.Rect(slot[1])
-
-            if (rect.x in screen_w_range and rect.width in screen_w_range) and (
-              rect.y in screen_h_range and rect.height in screen_h_range
-            ):
-              pygame.draw.rect(self.canvas, pallet_colors[self.colors[slot[0]]], rect)
-
-    except FileNotFoundError:
-      print("Arquivo não encontrado")
-
-  def create_grid(self):  # cria a matriz da tela
-    for _ in range(int(self.tiles_amount_y)):
-      new_line = []
-      for _ in range(int(self.tiles_amount_x)):
-        new_line.append([-1])
-      self.saveless_grid.append(new_line)
-
-  def draw_grid(self):
-    for l_idx, line in enumerate(self.saveless_grid):
-      for c_idx, tile in enumerate(line):
-        tile_x = TILE_SIZE * c_idx
-        tile_y = TILE_SIZE * l_idx
-
-        rect = pygame.draw.rect(
-          self.canvas,
-          screen_colors["tile_color"],
-          (BORDER + tile_x, BORDER + tile_y, TILE_SIZE, TILE_SIZE),
+        map = pygame.image.load("map_maker/src/Mapa.png")
+        self.map = pygame.transform.scale(
+            map, (self.screen.get_width(), self.screen.get_height())
         )
 
-        self.saveless_grid[l_idx][c_idx].append(
-          [rect.x, rect.y, rect.width, rect.height]
+        self.show_lines = False
+        self.load_save()
+        self.update()
+
+    def save_map(self):
+        with open("data/settings.json", "w") as data:
+            settings = {
+                "original_resolution": list(self.screen.get_size()),
+                "tile_size": TILE_SIZE,
+                "tiles_amount": [self.tiles_amount_x, self.tiles_amount_y],
+                "PALLET_COLORS": PALLET_COLORS,
+            }
+            json.dump(
+                settings,
+                data,
+            )
+
+        with open("data/tile_map.json", "w") as cache:
+            json.dump(self.tile_map, cache)
+
+    def load_save(self):
+        try:
+            with open("data/tile_map.json") as data:
+                cache = json.load(data)
+
+                if len(cache) > 0:
+                    self.tile_map = cache
+                    self.last_len = len(self.tile_map)
+                    screen_w_range = range(self.screen.get_width())
+                    screen_h_range = range(self.screen.get_height())
+
+                    for slot in self.tile_map:
+                        rect = pygame.Rect(slot[1])
+
+                        if (
+                            rect.x in screen_w_range
+                            and rect.x + rect.width in screen_w_range
+                        ) and (
+                            rect.y in screen_h_range
+                            and rect.y + rect.height in screen_h_range
+                        ):
+                            pygame.draw.rect(
+                                self.screen, PALLET_COLORS[self.colors[slot[0]]], rect
+                            )
+
+        except FileNotFoundError:
+            print("Arquivo não encontrado")
+
+    def toggle_lines(self):
+        self.show_lines = not self.show_lines
+
+    def render_mouse_lines(self):
+        mouse_pos = pygame.mouse.get_pos()
+        if self.show_lines:
+            self.update()
+            pygame.draw.line(
+                self.screen,
+                "white",
+                (mouse_pos[0], 0),
+                (mouse_pos[0], self.screen.height),
+            )
+            pygame.draw.line(
+                self.screen,
+                "white",
+                (0, mouse_pos[1]),
+                (self.screen.width, mouse_pos[1]),
+            )
+
+    def get_tile_coords(self):
+        mouse_pos = pygame.mouse.get_pos()
+        tile_percent_x = mouse_pos[0] / self.canvas_width
+        tile_pos_x = max(
+            0,
+            min(
+                int(self.tiles_amount_x * tile_percent_x) * TILE_SIZE,
+                self.canvas_width - TILE_SIZE,
+            ),
         )
-    self.canvas.blit(self.map, (BORDER, BORDER))
 
-  def draw(self, color_idx: int = None):
-    mouse_pos = pygame.mouse.get_pos()
-    for l_idx, line in enumerate(self.saveless_grid):
-      for c_idx, col in enumerate(line):
-        if pygame.Rect(tuple(col[1])).collidepoint(mouse_pos):
-          clicked_slot = self.saveless_grid[l_idx][c_idx]
-
-          if color_idx < 0:
-            print(clicked_slot)
-            if clicked_slot in self.object_position_list:
-              idx = self.object_position_list.index(clicked_slot)
-              self.object_position_list.pop(idx)
-              print("apagado")
-
-          else:
-            clicked_slot[0] = color_idx
-            if clicked_slot not in self.object_position_list:
-              self.object_position_list.append(clicked_slot)
-    self.update()
-
-  def clean_all(self):
-    self.object_position_list = []
-    self.saveless_grid = []
-    self.create_grid()
-    self.draw_grid()
-
-  def update(self):
-    self.canvas.blit(self.map, (BORDER, BORDER))
-    for slot in self.object_position_list:
-      if slot[0] >= 0:
-        pygame.draw.rect(
-          self.canvas,
-          pallet_colors[self.colors[slot[0]]],
-          slot[1],
+        tile_percent_y = mouse_pos[1] / self.canvas_height
+        tile_pos_y = max(
+            0,
+            min(
+                int(self.tiles_amount_y * tile_percent_y) * TILE_SIZE,
+                self.canvas_height - TILE_SIZE,
+            ),
         )
+
+        return tile_pos_x, tile_pos_y
+
+    def draw(self, color_idx: int = None):
+        tile_x, tile_y = self.get_tile_coords()
+        new_tile = [color_idx, [tile_x, tile_y, TILE_SIZE, TILE_SIZE]]
+        if new_tile not in self.tile_map:
+            self.tile_map.append(new_tile)
+        self.update()
+
+    def erase(self):
+        tile_x, tile_y = self.get_tile_coords()
+        for tile in self.tile_map:
+            if tile[1][0] == tile_x and tile[1][1] == tile_y:
+                self.tile_map.pop(self.tile_map.index(tile))
+        self.update()
+
+    def clean_all(self):
+        self.tile_map = []
+        self.update()
+
+    def update(self):
+        self.screen.blit(self.map, (0, 0))
+
+        for slot in self.tile_map:
+            if slot[0] >= 0:
+                pygame.draw.rect(
+                    self.screen,
+                    PALLET_COLORS[self.colors[slot[0]]],
+                    slot[1],
+                )
+
+    def redimentionize(self, screen: pygame.Surface):
+        self.screen = screen
+
+        self.tiles_amount_x = self.screen.get_width() // TILE_SIZE
+        self.tiles_amount_y = self.screen.get_height() // TILE_SIZE
+
+        self.last_width = self.canvas_width
+        self.last_height = self.canvas_height
+
+        self.canvas_width = self.tiles_amount_x * TILE_SIZE
+        self.canvas_height = self.tiles_amount_y * TILE_SIZE
+
+        self.map = pygame.transform.scale(
+            self.map, (self.canvas_width, self.canvas_height)
+        )
+
+        # scale_x = self.canvas_width / self.last_width
+        # print(scale_x)
+
+        # for tile_idx, tile in enumerate(self.tile_map):
+        #     new_data = tile
+        #     for idx in range(len(tile[1])):
+        #         new_data[1][idx] *= scale_x
+        #     self.tile_map[tile_idx] = new_data
+        self.update()
