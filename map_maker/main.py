@@ -48,7 +48,7 @@ while running_game:
         canvas.clean_all()
 
     if pygame.mouse.get_pressed()[2]:
-        canvas.draw(-1)
+        canvas.erase()
 
     canvas.render_mouse_lines()
     pygame.display.update()
