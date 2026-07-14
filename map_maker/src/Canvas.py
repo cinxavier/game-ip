@@ -86,7 +86,6 @@ class Canvas:
   def render_mouse_lines(self):
     mouse_pos = pygame.mouse.get_pos()
     if self.show_lines:
-      self.update()
       pygame.draw.line(
         self.screen,
         "white",
