@@ -8,8 +8,6 @@ tamanho_tela = pygame.display.get_desktop_sizes()[0]
 tela = pygame.display.set_mode(tamanho_tela, pygame.FULLSCREEN)
 largura_tela, altura_tela = tela.size
 
-pygame.display.set_caption("Aventura Magica")
-
 mapa = pygame.image.load("assets/images/Mapa.png").convert_alpha()
 escala = 4.5
 
@@ -28,9 +26,9 @@ for tijolo in info_paredes:
 
 class Player:
   def __init__(self):
-    self.tamanho_sprite = self.largura, self.altura = 16, 16
-    self.camera_x = 0
-    self.camera_y = 0
+    self.tamanho_sprite = self.largura, self.altura = 32, 32
+    self.camera_x = 30
+    self.camera_y = 550
 
     self.rect = pygame.Rect(
       0,
@@ -49,7 +47,7 @@ class Player:
 
     self.imagem = self.sprites_atuais[int(self.frame)]
 
-    self.delta_v = 5
+    self.delta_v = 10
 
   def eventos(self):
     self.sprites_atuais = self.sprites_jogador.andando(self.direcao)
@@ -70,18 +68,22 @@ class Player:
             self.rect.x > parede_retang.right
             and self.rect.x - self.delta_v <= parede_retang.right
             and (
-              self.rect.top in range(parede_retang.top, parede_retang.bottom)
-              or self.rect.bottom
-              in range(parede_retang.top, parede_retang.bottom)
+              parede_retang.top in range(self.rect.top, self.rect.bottom)
+              or parede_retang.bottom in range(self.rect.top, self.rect.bottom)
             )
           ):
             livre = False
             break
 
-      if livre:
-        self.camera_x -= self.delta_v
-        for parede in paredes:
-          parede[1].x += self.delta_v
+        if livre:
+          self.camera_x -= self.delta_v
+          for parede in paredes:
+            parede[1].x += self.delta_v
+        else:
+          dif = self.rect.left - parede_retang.right - 1
+          self.camera_x -= dif // 2
+          for parede in paredes:
+            parede[1].x += dif // 2
 
     elif tecla[pygame.K_d]:
       self.direcao = sprite.DIREITA
@@ -94,11 +96,10 @@ class Player:
           parede_retang = parede[1]
           if (
             self.rect.x < parede_retang.left
-            and self.rect.right + self.delta_v > parede_retang.left
+            and self.rect.right + self.delta_v >= parede_retang.left
             and (
-              self.rect.top in range(parede_retang.top, parede_retang.bottom)
-              or self.rect.bottom
-              in range(parede_retang.top, parede_retang.bottom)
+              parede_retang.top in range(self.rect.top, self.rect.bottom)
+              or parede_retang.bottom in range(self.rect.top, self.rect.bottom)
             )
           ):
             livre = False
@@ -108,6 +109,12 @@ class Player:
           self.camera_x += self.delta_v
           for parede in paredes:
             parede[1].x -= self.delta_v
+        else:
+            dif = parede_retang.x - self.rect.right - 1
+
+            self.camera_x += dif // 2
+            for parede in paredes:
+              parede[1].x -= dif // 2
 
     elif tecla[pygame.K_w]:
       self.direcao = sprite.COSTAS
@@ -122,9 +129,8 @@ class Player:
             self.rect.y > parede_retang.bottom
             and self.rect.top - self.delta_v <= parede_retang.bottom
             and (
-              self.rect.left in range(parede_retang.left, parede_retang.right)
-              or self.rect.right
-              in range(parede_retang.left, parede_retang.right)
+              parede_retang.left in range(self.rect.left, self.rect.right)
+              or parede_retang.right in range(self.rect.left, self.rect.right)
             )
           ):
             livre = False
@@ -134,6 +140,11 @@ class Player:
           self.camera_y -= self.delta_v
           for parede in paredes:
             parede[1].y += self.delta_v
+        else:
+          dif = self.rect.top- parede_retang.bottom
+          self.camera_y -= dif // 2
+          for parede in paredes:
+            parede[1].y += dif // 2
 
     elif tecla[pygame.K_s]:
       self.direcao = sprite.FRENTE
@@ -148,9 +159,8 @@ class Player:
             self.rect.bottom < parede_retang.top
             and self.rect.bottom + self.delta_v >= parede_retang.top
             and (
-              self.rect.left in range(parede_retang.left, parede_retang.right)
-              or self.rect.right
-              in range(parede_retang.left, parede_retang.right)
+              parede_retang.left in range(self.rect.left, self.rect.right)
+              or parede_retang.right in range(self.rect.left, self.rect.right)
             )
           ):
             livre = False
@@ -160,6 +170,11 @@ class Player:
           self.camera_y += self.delta_v
           for parede in paredes:
             parede[1].y -= self.delta_v
+        else:
+          dif = parede_retang.top- self.rect.bottom
+          self.camera_y += dif // 2
+          for parede in paredes:
+            parede[1].y -= dif // 2
 
     else:
       self.frame = 0
@@ -172,8 +187,9 @@ class Player:
     self.camera_y = max(
       0, min(self.camera_y, mapa.get_height() - tela.get_height() / escala)
     )
-    self.rect.x = mapa.get_width() / escala / 2 - self.largura 
-    self.rect.y = mapa.get_height() / escala / 2 - self.altura 
+
+    self.rect.x = mapa.get_width() / escala / 2 - self.largura
+    self.rect.y = mapa.get_height() / escala / 2 - self.altura
 
     self.frame += self.next_frame
     if self.frame >= len(self.sprites_atuais):
@@ -181,27 +197,26 @@ class Player:
 
     self.imagem = self.sprites_atuais[int(self.frame)]
     self.imagem = pygame.transform.smoothscale(
-      self.imagem, (self.largura * 5.5, self.altura * 5.5)
+      self.imagem, (self.largura * escala, self.altura * escala)
     )
 
   def render(self, tela: pygame.Surface):
+
+    # pygame.draw.rect(
+    #   tela,
+    #   (0, 0, 200),
+    #   (
+    #     self.rect.x * escala,
+    #     self.rect.y * escala,
+    #     self.rect.w * escala,
+    #     self.rect.h * escala,
+    #   ),
+    # )
     tela.blit(
       self.imagem,
       (
         self.rect.x * escala,
         self.rect.y * escala,
-        self.rect.w * escala,
-        self.rect.h * escala,
-      ),
-    )
-    pygame.draw.rect(
-      tela,
-      (0, 0, 200),
-      (
-        self.rect.x * escala,
-        self.rect.y * escala,
-        self.rect.w * escala,
-        self.rect.h * escala,
       ),
     )
 
@@ -237,10 +252,14 @@ class Coletavel:
 
 
 player = Player()
+for tijolo in paredes:
+  tijolo[1].x -= player.camera_x
+  tijolo[1].y -= player.camera_y
+
+
 tempo = pygame.Clock()
 rodando = True
-
-txt = pygame.font.Font("assets/fonts/main_font.ttf")
+txt = pygame.font.Font("assets/fonts/main_font.ttf", 60)
 while rodando:
   tempo.tick(30)
 
@@ -252,6 +271,8 @@ while rodando:
       if evento.key == pygame.K_ESCAPE:
         rodando = False
         continue
+      if evento.key == pygame.K_v:
+        player.delta_v = 1 if player.delta_v > 1 else 16
 
   area_parcial = mapa.subsurface(
     (
@@ -268,7 +289,7 @@ while rodando:
     reta = tijolo[1]
     pygame.draw.rect(
       tela,
-      (255, 0, 0),
+      (255, 0, 0) if tijolo[0] == 0 else (0, 255, 0),
       (
         int(reta.x) * escala,
         int(reta.y) * escala,
@@ -278,25 +299,6 @@ while rodando:
     )
   player.eventos()
   player.update()
-
-  t = txt.render(
-    f"camera = T: {player.camera_y} | B: {player.camera_y + mapa.height / escala} | R: {player.camera_x} | L: {player.camera_x + mapa.width / escala}",
-    False,
-    (255, 255, 255),
-  )
-  tela.blit(t, (10, 10))
-  t = txt.render(
-    f"player = T: {player.rect.top} | B: {player.rect.bottom} | R: {player.rect.right} | L: {player.rect.left}",
-    False,
-    (255, 255, 255),
-  )
-  tela.blit(t, (10, 30))
-  t = txt.render(
-    f"parede = T: {paredes[0][1].top} | B: {paredes[0][1].bottom} | R: {paredes[0][1].right} | L: {paredes[0][1].left}",
-    False,
-    (255, 255, 255),
-  )
-  tela.blit(t, (10, 50))
 
   player.render(tela)
 
