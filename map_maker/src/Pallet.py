@@ -1,37 +1,88 @@
 import pygame
-from map_maker.Settings import PALLET_COLORS, BORDER
+import Settings
+from Settings import PALLET_COLORS, BORDER, DEFAULT_FONT, COLORS
 
 
 class Pallet:
-  def __init__(self):
+  def __init__(self, screen: pygame.Surface):
+    self.screen = screen
     self.selected_color = 0
     self.ink_size = self.ink_width, self.ink_height = (80, 50)
-    self.gap = 2
+    self.gap = 4
+    self.width = (
+      (len(PALLET_COLORS) + 1) * (self.ink_width + self.gap)
+      - self.gap
+      + BORDER * 2
+    )
+    self.height = (
+      self.ink_height * 2
+      + BORDER * 2
+      + DEFAULT_FONT.get_height()
+      + self.gap * 2
+    )
 
-    self.width = self.len(PALLET_COLORS) * self.width
-    self.height = (self.ink_height + self.gap) * len(PALLET_COLORS)
+  def render(self, x: int, y: int):
+    container = pygame.Rect(x, y, self.width, self.height)
+    self.pallet = self.screen.subsurface(container)
 
-  def draw_pallet(self, screen: pygame.Surface):
-    pos_y = BORDER
+    pygame.draw.rect(
+      self.pallet,
+      COLORS["bg"],
+      (
+        0,
+        0,
+        self.pallet.get_width(),
+        self.pallet.get_height(),
+      ),
+    )
 
-    container_form = pygame.Rect(self.pos_x, pos_y, self.width, self.height)
-    self.pallet = screen.subsurface(container_form)
-    self.insert_colors()
+    pygame.draw.rect(
+      self.pallet,
+      PALLET_COLORS[self.selected_color],
+      (
+        BORDER,
+        BORDER,
+        self.pallet.get_width() - BORDER * 2,
+        self.ink_height,
+      ),
+    )
 
-  def insert_colors(self):
-    ink_pos_y = 0
-    for key in PALLET_COLORS:
+    for idx, ink in enumerate(PALLET_COLORS):
+      pos_x = BORDER + (self.ink_width + self.gap) * idx
       pygame.draw.rect(
         self.pallet,
-        PALLET_COLORS[key],
-        (0, ink_pos_y, self.width - self.gap, self.ink_height),
+        ink,
+        (
+          pos_x,
+          BORDER + self.ink_height + self.gap,
+          self.ink_width,
+          self.ink_height,
+        ),
       )
-      ink_pos_y += self.ink_height + self.gap
 
-  def change_color(self):
-    proportion_coef = self.ink_height + BORDER
-    mouse_pos = pygame.mouse.get_pos()
-    ink_idx = mouse_pos[1] // proportion_coef
+      text = DEFAULT_FONT.render(
+        str(idx + 1),
+        False,
+        COLORS["fg"],
+      )
 
-    if mouse_pos[0] > self.pos_x and ink_idx < len(PALLET_COLORS):
-      self.selected_color = ink_idx
+      self.pallet.blit(
+        text,
+        (
+          pos_x + self.ink_width / 2 - text.get_width() / 2,
+          self.pallet.get_height() - text.get_height() - BORDER,
+        ),
+      )
+    text = DEFAULT_FONT.render(
+      str(Settings.TILE_SIZE),
+      False,
+      COLORS["fg"],
+    )
+
+    self.pallet.blit(
+      text,
+      (
+        pos_x + self.ink_width + self.gap,
+        self.pallet.get_height() / 2 - text.get_height() / 2,
+      ),
+    )

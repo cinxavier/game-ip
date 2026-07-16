@@ -1,10 +1,8 @@
 import pygame
-
 pygame.init()
 
-type rgb_type = tuple[int, int, int]
+ESCALA = 5
 COLORS = {"bg": (30, 30, 30, 0), "fg": (200, 200, 200)}
-PENSILS = ["tile", "rect"]
 
 PALLET_COLORS = [
   (200, 0, 0),

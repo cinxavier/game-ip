@@ -1,5 +1,5 @@
 import pygame
-from ..sprites import Coletavel, Player, FRENTE
+from ..utils.sprites import Coletavel, Player, FRENTE
 
 # Cores utilizadas ao longo do código
 cores = {

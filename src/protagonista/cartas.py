@@ -1,5 +1,3 @@
-# arquivo cartas modificado para pygame - teste
-
 import pygame
 
 COR_DESTAQUE = (255, 215, 0)
