@@ -41,6 +41,17 @@ class Mapa:
           tijolo.h * ESCALA,
         ),
       )
+    # for cor_idx, tijolo in paredes:
+    #   pygame.draw.rect(
+    #     self.tela,
+    #     PALLET_COLORS[cor_idx],
+    #     (
+    #       tijolo.x,
+    #       tijolo.y,
+    #       tijolo.w,
+    #       tijolo.h,
+    #     ),
+    #   )
 
   def get_mapa(self):
     return self.mapa

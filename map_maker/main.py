@@ -57,7 +57,8 @@ while running_game:
       if event.y > 0:
         Settings.TILE_SIZE += 1
       else:
-        Settings.TILE_SIZE -= 1
+        if Settings.TILE_SIZE > 1:
+          Settings.TILE_SIZE -= 1
       canvas.update_grid_tiles()
 
     if PENSILS[canvas.pensil_idx] == "rect":
@@ -65,6 +66,12 @@ while running_game:
         if event.button == 1:
           canvas.draw(pallet.selected_color)
 
+  if pygame.key.get_pressed()[pygame.K_UP]:
+    Settings.TILE_SIZE += 1
+    canvas.update_grid_tiles()
+  if pygame.key.get_pressed()[pygame.K_DOWN] and Settings.TILE_SIZE > 1:
+    Settings.TILE_SIZE -= 1
+    canvas.update_grid_tiles()
   if PENSILS[canvas.pensil_idx] != "rect":
     if pygame.mouse.get_pressed()[0]:
       canvas.draw(pallet.selected_color)

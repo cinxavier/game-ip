@@ -30,8 +30,9 @@ class Player:
     self.next_frame = 0.3
 
     self.imagem = self.sprites_atuais[int(self.frame)]
-    self.delta_v = 10
     self.mostrar_colisão = False
+
+    self.delta_v = 10
 
   def eventos(self):
     self.sprites_atuais = self.sprites_jogador.andando(self.direcao)
@@ -60,17 +61,18 @@ class Player:
               )
             )
           ):
-            livre = False
-            break
+            if efeito == 0:
+              livre = False
+              break
 
         if livre:
           self.camera_x -= self.delta_v
-          for _, parede in paredes:
+          for efeito, parede in paredes:
             parede.x += self.delta_v
         else:
           dif = self.rect.left - parede.right - 1
           self.camera_x -= dif // 2
-          for _, parede in paredes:
+          for efeito, parede in paredes:
             parede.x += dif // 2
 
     elif tecla[pygame.K_d]:
@@ -82,7 +84,7 @@ class Player:
         livre = False
 
       if livre:
-        for _, parede in paredes:
+        for efeito, parede in paredes:
           if (
             self.rect.x < parede.left
             and self.rect.right + self.delta_v >= parede.left
@@ -97,18 +99,19 @@ class Player:
               )
             )
           ):
-            livre = False
-            break
+            if efeito == 0:
+              livre = False
+              break
 
         if livre:
           self.camera_x += self.delta_v
-          for _, parede in paredes:
+          for efeito, parede in paredes:
             parede.x -= self.delta_v
         else:
           dif = parede.x - self.rect.right - 1
 
           self.camera_x += dif // 2
-          for _, parede in paredes:
+          for efeito, parede in paredes:
             parede.x -= dif // 2
 
     elif tecla[pygame.K_w]:
@@ -118,33 +121,37 @@ class Player:
         livre = False
 
       if livre:
-        for _, parede in paredes:
+        for efeito, parede in paredes:
           if (
-            self.rect.y > parede.bottom
-            and self.rect.top - self.delta_v <= parede.bottom
-            and (
+            (
               (
-                parede.left in range(self.rect.left, self.rect.right)
-                or parede.right in range(self.rect.left, self.rect.right)
-              )
-              or (
                 self.rect.left in range(parede.left, parede.right)
                 or self.rect.right in range(parede.left, parede.right)
               )
+              or (
+                parede.left in range(self.rect.left, self.rect.right)
+                or parede.right in range(self.rect.left, self.rect.right)
+              )
             )
+            and self.rect.y > parede.bottom
+            and self.rect.top - self.delta_v <= parede.bottom
           ):
-            livre = False
-            break
-
+            if efeito == 0:
+              livre = False
+              break
+          if self.rect.colliderect(parede):
+            self.delta_v = 3
+          else:
+            self.delta_v = 10
         if livre:
           self.camera_y -= self.delta_v
-          for _, parede in paredes:
+          for efeito, parede in paredes:
             parede.y += self.delta_v
         else:
-          dif = self.rect.top - parede.bottom
-          self.camera_y -= dif // 2
-          for _, parede in paredes:
-            parede.y += dif // 2
+          dif = (self.rect.top - parede.bottom) // 2
+          self.camera_y -= dif
+          for efeito, parede in paredes:
+            parede.y += dif
 
     elif tecla[pygame.K_s]:
       self.direcao = sprite.FRENTE
@@ -156,7 +163,7 @@ class Player:
         livre = False
 
       if livre:
-        for _, parede in paredes:
+        for efeito, parede in paredes:
           if (
             self.rect.bottom < parede.top
             and self.rect.bottom + self.delta_v >= parede.top
@@ -171,17 +178,18 @@ class Player:
               )
             )
           ):
-            livre = False
-            break
+            if efeito == 0:
+              livre = False
+              break
 
         if livre:
           self.camera_y += self.delta_v
-          for _, parede in paredes:
+          for efeito, parede in paredes:
             parede.y -= self.delta_v
         else:
           dif = parede.top - self.rect.bottom
           self.camera_y += dif // 2
-          for _, parede in paredes:
+          for efeito, parede in paredes:
             parede.y -= dif // 2
 
     else:
@@ -226,13 +234,24 @@ class Player:
           self.rect.h * ESCALA,
         ),
       )
+    pygame.draw.rect(
+      self.tela,
+      (0, 0, 200),
+      (
+        self.rect.x,
+        self.rect.y,
+        self.rect.w,
+        self.rect.h,
+      ),
+    )
 
-    self.imagem = pygame.transform.scale_by(self.imagem, 2)
+    self.imagem = pygame.transform.scale_by(self.imagem, 1.3)
     self.tela.blit(
       self.imagem,
       (
         (self.rect.x - self.imagem.get_width() / ESCALA / 2 + self.rect.w / 2)
         * ESCALA,
-        (self.rect.y - self.imagem.get_height() / ESCALA + self.rect.h) * ESCALA,
+        (self.rect.y - self.imagem.get_height() / ESCALA + self.rect.h)
+        * ESCALA,
       ),
     )
