@@ -1,29 +1,72 @@
 import pygame
 import Settings
 from Settings import PALLET_COLORS, BORDER, DEFAULT_FONT, COLORS
+from .sprites import Inimigo, NIVEIS, TIPOS, FRENTE
+
+sprites: list[pygame.Surface] = []
+
+for nivel in NIVEIS:
+  for tipo in TIPOS:
+    sprite = Inimigo(nivel, tipo).parado(FRENTE)[0]
+    sprite = pygame.transform.scale(sprite, (120, 120))
+    sprites.append([sprite, [nivel, tipo, FRENTE]])
 
 
 class Pallet:
-  def __init__(self, screen: pygame.Surface):
+  def __init__(
+    self,
+    screen: pygame.Surface,
+  ):
     self.screen = screen
-    self.selected_color = 0
-    self.ink_size = self.ink_width, self.ink_height = (80, 50)
+    self.content_width, self.content_height = (50, 50)
     self.gap = 4
     self.width = (
-      (len(PALLET_COLORS) + 1) * (self.ink_width + self.gap)
+      (len(PALLET_COLORS) + 1) * (self.content_width + self.gap)
       - self.gap
       + BORDER * 2
     )
+
     self.height = (
-      self.ink_height * 2
+      self.content_height * 2
       + BORDER * 2
       + DEFAULT_FONT.get_height()
       + self.gap * 2
     )
 
-  def render(self, x: int, y: int):
+    self.selected_color = 0
+    self.selected_sprite = 0
+
+  def update(self, x: int, y: int, curr_pensil: str):
+    self.curr_pensil = curr_pensil
+    if self.curr_pensil == "enemy":
+      self.content_width, self.content_height = (120, 120)
+      self.sprites_width = (
+        (len(sprites) + 1) * (self.content_width + self.gap)
+        - self.gap
+        + BORDER * 2
+      )
+      self.width = self.sprites_width
+
+    else:
+      self.content_width, self.content_height = (50, 50)
+      self.colors_width = (
+        (len(PALLET_COLORS) + 1) * (self.content_width + self.gap)
+        - self.gap
+        + BORDER * 2
+      )
+      self.width = self.colors_width
+
+    self.height = (
+      self.content_height * 2
+      + BORDER * 2
+      + DEFAULT_FONT.get_height()
+      + self.gap * 2
+    )
+
     container = pygame.Rect(x, y, self.width, self.height)
     self.pallet = self.screen.subsurface(container)
+
+  def render(self):
 
     pygame.draw.rect(
       self.pallet,
@@ -36,29 +79,44 @@ class Pallet:
       ),
     )
 
-    pygame.draw.rect(
-      self.pallet,
-      PALLET_COLORS[self.selected_color],
-      (
-        BORDER,
-        BORDER,
-        self.pallet.get_width() - BORDER * 2,
-        self.ink_height,
-      ),
-    )
+    if self.curr_pensil == "enemy":
+      self.pallet.blit(
+        sprites[self.selected_sprite][0],
+        (self.pallet.width / 2 - self.content_width / 2, BORDER),
+      )
 
-    for idx, ink in enumerate(PALLET_COLORS):
-      pos_x = BORDER + (self.ink_width + self.gap) * idx
+    else:
       pygame.draw.rect(
         self.pallet,
-        ink,
+        PALLET_COLORS[self.selected_color],
         (
-          pos_x,
-          BORDER + self.ink_height + self.gap,
-          self.ink_width,
-          self.ink_height,
+          BORDER,
+          BORDER,
+          self.pallet.get_width() - BORDER * 2,
+          self.content_height,
         ),
       )
+
+    for idx, contents in enumerate(
+      sprites if self.curr_pensil == "enemy" else PALLET_COLORS
+    ):
+      content = contents[0] if self.curr_pensil == "enemy" else contents
+      pos_x = BORDER + (self.content_width + self.gap) * idx
+      if self.curr_pensil == "enemy":
+        self.pallet.blit(
+          content, (pos_x, BORDER + self.content_height + self.gap)
+        )
+      else:
+        pygame.draw.rect(
+          self.pallet,
+          content,
+          (
+            pos_x,
+            BORDER + self.content_height + self.gap,
+            self.content_width,
+            self.content_height,
+          ),
+        )
 
       text = DEFAULT_FONT.render(
         str(idx + 1),
@@ -69,20 +127,20 @@ class Pallet:
       self.pallet.blit(
         text,
         (
-          pos_x + self.ink_width / 2 - text.get_width() / 2,
+          pos_x + self.content_width / 2 - text.get_width() / 2,
           self.pallet.get_height() - text.get_height() - BORDER,
         ),
       )
+
     text = DEFAULT_FONT.render(
-      str(Settings.TILE_SIZE),
+      f"{Settings.TILE_SIZE}",
       False,
       COLORS["fg"],
     )
-
     self.pallet.blit(
       text,
       (
-        pos_x + self.ink_width + self.gap,
+        pos_x + self.content_width + self.gap,
         self.pallet.get_height() / 2 - text.get_height() / 2,
       ),
     )

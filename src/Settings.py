@@ -1,14 +1,14 @@
 import pygame
-pygame.init()
 
+pygame.init()
 ESCALA = 5
 COLORS = {"bg": (30, 30, 30, 0), "fg": (200, 200, 200)}
 
 PALLET_COLORS = [
+  (0, 0, 0),
   (200, 0, 0),
   (0, 200, 0),
   (0, 0, 200),
-  (0, 0, 0),
   (200, 200, 200),
 ]
 

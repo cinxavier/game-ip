@@ -2,6 +2,7 @@ import pygame
 from protagonista.Player import Player
 from utils.Tile_map import paredes
 from utils.Mapa import Mapa
+from Settings import ESCALA
 
 pygame.init()
 
@@ -13,10 +14,16 @@ largura_tela, altura_tela = tela.size
 mapa = Mapa(tela)
 player = Player(tela, mapa.get_mapa())
 
+player.camera_x = (
+  player.camera_x - mapa.get_mapa().width / ESCALA / 2 + player.rect.w
+)
+player.camera_y = (
+  player.camera_y - mapa.get_mapa().height / ESCALA / 2 + player.rect.h
+)
+player.update()
 for tijolo in paredes:
-  tijolo[1].x -= player.camera_x
-  tijolo[1].y -= player.camera_y
-
+  tijolo[2].x -= player.camera_x
+  tijolo[2].y -= player.camera_y
 
 tempo = pygame.Clock()
 rodando = True
@@ -34,11 +41,11 @@ while rodando:
           continue
 
         case pygame.K_c:
-          player.mostrar_colisão = not player.mostrar_colisão
-          break
-  
-  mapa.render((player.camera_x,player.camera_y))
-  
+          player.mostrar_colisao = not player.mostrar_colisao
+          mapa.toggle_hitboxes()
+
+  mapa.render((player.camera_x, player.camera_y))
+
   player.eventos()
   player.update()
   player.render()

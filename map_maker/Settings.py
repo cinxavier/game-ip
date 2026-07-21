@@ -4,14 +4,14 @@ pygame.init()
 
 type rgb_type = tuple[int, int, int]
 COLORS = {"bg": (30, 30, 30, 0), "fg": (200, 200, 200)}
-PENSILS = ["tile", "rect"]
+PENSILS = ["tile", "rect", "enemy"]
 
 PALLET_COLORS = [
+  (0, 0, 0),
   (200, 0, 0),
   (0, 200, 0),
-  (0, 0, 200),
-  (0, 0, 0),
   (200, 200, 200),
+  (0, 0, 200),
 ]
 
 # global props
