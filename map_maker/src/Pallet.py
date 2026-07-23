@@ -17,6 +17,8 @@ class Pallet:
     self,
     screen: pygame.Surface,
   ):
+    self.show = True
+
     self.screen = screen
     self.content_width, self.content_height = (50, 50)
     self.gap = 4
@@ -67,7 +69,6 @@ class Pallet:
     self.pallet = self.screen.subsurface(container)
 
   def render(self):
-
     pygame.draw.rect(
       self.pallet,
       COLORS["bg"],
@@ -144,3 +145,6 @@ class Pallet:
         self.pallet.get_height() / 2 - text.get_height() / 2,
       ),
     )
+
+  def toggle_show(self):
+    self.show = not self.show

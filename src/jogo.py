@@ -1,6 +1,6 @@
 import pygame
 from protagonista.Player import Player
-from utils.Tile_map import paredes
+from utils.Tile_map import paredes, inimigos
 from utils.Mapa import Mapa
 from Settings import ESCALA
 
@@ -21,9 +21,16 @@ player.camera_y = (
   player.camera_y - mapa.get_mapa().height / ESCALA / 2 + player.rect.h
 )
 player.update()
+
 for tijolo in paredes:
-  tijolo[2].x -= player.camera_x
-  tijolo[2].y -= player.camera_y
+  tijolo[1].x -= player.camera_x
+  tijolo[1].y -= player.camera_y
+
+for inimigo in inimigos:
+  inimigo[1].x -= player.camera_x
+  inimigo[2].x -= player.camera_x
+  inimigo[1].y -= player.camera_y
+  inimigo[2].y -= player.camera_y
 
 tempo = pygame.Clock()
 rodando = True

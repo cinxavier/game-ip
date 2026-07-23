@@ -5,7 +5,7 @@ from utils.Tile_map import paredes, spawnpoint, inimigos
 from Settings import ESCALA
 
 
-class Player(Personagem):
+class Jogador(Personagem):
   def __init__(self, tela: pygame.Surface, mapa: pygame.Surface):
     self.tamanho = self.largura, self.altura = (16, 14)
     spawn = pygame.Rect(spawnpoint[1])
