@@ -1,22 +1,19 @@
 import pygame
 import Settings
-from Settings import PALLET_COLORS, BORDER, DEFAULT_FONT, COLORS
-from .sprites import Inimigo, NIVEIS, TIPOS, FRENTE
+from Settings import PALLET_COLORS, BORDER, DEFAULT_FONT, COLORS, PENSILS
+from .sprites import Inimigo, NIVEIS, TIPOS, FRENTE, DIRECOES
 
-sprites: list[pygame.Surface] = []
+sprites: list[tuple[pygame.Surface, list[str]]] = []
 
 for nivel in NIVEIS:
   for tipo in TIPOS:
     sprite = Inimigo(nivel, tipo).parado(FRENTE)[0]
     sprite = pygame.transform.scale(sprite, (120, 120))
-    sprites.append([sprite, [nivel, tipo, FRENTE]])
+    sprites.append([sprite, [nivel, tipo]])
 
 
 class Pallet:
-  def __init__(
-    self,
-    screen: pygame.Surface,
-  ):
+  def __init__(self, screen: pygame.Surface):
     self.show = True
 
     self.screen = screen
@@ -35,11 +32,14 @@ class Pallet:
       + self.gap * 2
     )
 
+    self.pensil_idx = 0
+    self.curr_pensil = PENSILS[self.pensil_idx]
     self.selected_color = 0
     self.selected_sprite = 0
+    self.sprite_direction_idx = 0
 
-  def update(self, x: int, y: int, curr_pensil: str):
-    self.curr_pensil = curr_pensil
+  def update(self, x: int, y: int):
+    self.curr_pensil = PENSILS[self.pensil_idx]
     if self.curr_pensil == "enemy":
       self.content_width, self.content_height = (120, 120)
       self.sprites_width = (
@@ -148,3 +148,29 @@ class Pallet:
 
   def toggle_show(self):
     self.show = not self.show
+
+  def change_sprite_direction(self):
+    self.sprite_direction_idx += (
+      1
+      if self.sprite_direction_idx < len(DIRECOES) - 1
+      else -(len(DIRECOES) - 1)
+    )
+
+  def get_sprite(self, only_data: bool = False):
+    sprite = sprites[self.selected_sprite][1] + [DIRECOES[self.sprite_direction_idx]]
+    if only_data:
+      return sprite
+    return Inimigo(sprite[0], sprite[1]).parado(
+      DIRECOES[self.sprite_direction_idx]
+    )[0]
+
+  def change_pensil(self):
+    self.pensil_idx += (
+      1 if self.pensil_idx < len(PENSILS) - 1 else -(len(PENSILS) - 1)
+    )
+
+  def change_pallet_ink(self, ink_idx: int):
+    if self.curr_pensil == "enemy":
+      self.selected_sprite = min(ink_idx, len(sprites) - 1)
+    else:
+      self.selected_color = min(ink_idx, len(PALLET_COLORS) - 1)

@@ -1,15 +1,13 @@
 import pygame
 from src.Canvas import Canvas
-from src.Pallet import Pallet, sprites
+from src.Pallet import Pallet
 from src.Help_Box import Help
 from src.Filters import Filters
 import Settings
 from Settings import (
   CANVAS_HEIGHT,
   CANVAS_WIDTH,
-  PALLET_COLORS,
   DEFAULT_FONT,
-  PENSILS,
   COLORS,
 )
 
@@ -41,14 +39,7 @@ while running_game:
     if event.type == pygame.KEYDOWN:
       if pallet.show:
         if event.key in range(49, 59):
-          if PENSILS[canvas.pensil_idx] == "enemy":
-            pallet.selected_sprite = min(
-              int(pygame.key.name(event.key)) - 1, len(sprites) - 1
-            )
-          else:
-            pallet.selected_color = min(
-              int(pygame.key.name(event.key)) - 1, len(PALLET_COLORS) - 1
-            )
+          pallet.change_pallet_ink(event.key - 49)
           canvas.waiting_second_point = False
 
       match event.key:
@@ -65,13 +56,16 @@ while running_game:
         case pygame.K_p:
           pallet.toggle_show()
         case pygame.K_c:
-          canvas.pensil_idx += (
-            1 if canvas.pensil_idx < len(PENSILS) - 1 else -(len(PENSILS) - 1)
-          )
+          pallet.change_pensil()
         case pygame.K_r:
-          canvas.map = pygame.transform.smoothscale(
-            canvas.map, (screen.get_width(), screen.get_height())
-          )
+          if event.mod == pygame.KMOD_NONE:
+            if pallet.curr_pensil == "enemy":
+              pallet.change_sprite_direction()
+
+          elif pygame.KMOD_LSHIFT:
+            canvas.map = pygame.transform.smoothscale(
+              canvas.map, (screen.get_width(), screen.get_height())
+            )
 
     if event.type == pygame.MOUSEWHEEL:
       if event.y > 0:
@@ -83,14 +77,14 @@ while running_game:
 
     if event.type == pygame.MOUSEBUTTONDOWN:
       if event.button == 1:
-        if PENSILS[canvas.pensil_idx] == "rect":
-          canvas.draw(pallet.selected_color)
-        elif PENSILS[canvas.pensil_idx] == "enemy":
-          canvas.draw(sprites[pallet.selected_sprite][1])
+        if pallet.curr_pensil == "rect":
+          canvas.draw_rect(pallet.selected_color)
+        elif pallet.curr_pensil == "enemy":
+          canvas.draw_enemy(pallet.get_sprite(True))
 
-  if PENSILS[canvas.pensil_idx] == "tile":
+  if pallet.curr_pensil == "tile":
     if pygame.mouse.get_pressed()[0]:
-      canvas.draw(pallet.selected_color)
+      canvas.draw_tile(pallet.selected_color)
 
   if pygame.mouse.get_pressed()[1]:
     canvas.clean_all()
@@ -112,25 +106,27 @@ while running_game:
     filters.render_grid()
 
   if pallet.show:
-    pallet.update(
-      screen.get_width() / 2 - pallet.width / 2,
-      100,
-      PENSILS[canvas.pensil_idx],
-    )
+    pallet.update(screen.get_width() / 2 - pallet.width / 2, 100)
     pallet.render()
 
-  pensil_mode = DEFAULT_FONT.render(
-    str(
-      PENSILS[canvas.pensil_idx] + ("*" if canvas.waiting_second_point else "")
-    ).capitalize(),
-    False,
-    COLORS["fg"],
-    COLORS["bg"],
-  )
-  screen.blit(
-    pensil_mode, (pygame.mouse.get_pos()[0] + 20, pygame.mouse.get_pos()[1])
-  )
-
+  if pallet.curr_pensil == "enemy":
+    sprite_demo = pallet.get_sprite()
+    sprite_demo = pygame.transform.scale(
+      sprite_demo, (Settings.TILE_SIZE, Settings.TILE_SIZE)
+    )
+    screen.blit(sprite_demo, canvas.get_tile_coords())
+  else:
+    pensil_mode = DEFAULT_FONT.render(
+      str(
+        pallet.curr_pensil + ("*" if canvas.waiting_second_point else "")
+      ).capitalize(),
+      False,
+      COLORS["fg"],
+      COLORS["bg"],
+    )
+    screen.blit(
+      pensil_mode, (pygame.mouse.get_pos()[0] + 20, pygame.mouse.get_pos()[1])
+    )
   if helper.show:
     helper.render()
   pygame.display.update()

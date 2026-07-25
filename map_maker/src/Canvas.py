@@ -1,7 +1,7 @@
 import json
 import pygame
 import Settings
-from Settings import PALLET_COLORS, PENSILS, COLORS
+from Settings import PALLET_COLORS, COLORS
 from .sprites import Inimigo
 
 txt = pygame.font.Font("assets/fonts/main_font.ttf", 24)
@@ -29,7 +29,6 @@ class Canvas:
     self.first_rect_x = None
     self.first_rect_y = None
     self.temp_tile_idx = None
-    self.pensil_idx = 0
     self.spawnpoint = None
     self.load_save()
 
@@ -110,118 +109,116 @@ class Canvas:
 
     return tile_pos_x, tile_pos_y
 
-  def draw(self, content: int | list[str] = None):
-    match PENSILS[self.pensil_idx]:
-      case "tile":
-        tile_x, tile_y = self.get_tile_coords()
-        new_tile = [
-          content,
-          pygame.Rect(tile_x, tile_y, Settings.TILE_SIZE, Settings.TILE_SIZE),
-        ]
+  def draw_tile(self, ink_idx: int):
+    tile_x, tile_y = self.get_tile_coords()
+    new_tile = [
+      ink_idx,
+      pygame.Rect(tile_x, tile_y, Settings.TILE_SIZE, Settings.TILE_SIZE),
+    ]
 
-        if new_tile not in self.tile_map:
-          if content == 2:
-            if self.spawnpoint:
-              for tile in self.tile_map:
-                if tile[0] == 2:
-                  self.tile_map.pop(self.tile_map.index(tile))
-              self.spawnpoint = None
-            self.spawnpoint = new_tile
+    if new_tile not in self.tile_map:
+      self.tile_map.append(new_tile)
 
-          self.tile_map.append(new_tile)
-      case "rect":
-        if not self.waiting_second_point:
-          if content == 2:
-            return
-          self.first_rect_x, self.first_rect_y = self.get_tile_coords()
-          temp_tile = [
-            content,
-            pygame.Rect(
-              [
-                self.first_rect_x,
-                self.first_rect_y,
-                Settings.TILE_SIZE,
-                Settings.TILE_SIZE,
-              ]
-            ),
-          ]
-          if temp_tile not in self.tile_map:
-            self.temp_tile_idx = len(self.tile_map)
-            self.tile_map.append(temp_tile)
-            self.waiting_second_point = True
+      if ink_idx == 2 and self.spawnpoint:
+        for idx, tile in enumerate(self.tile_map):
+          if tile[0] == 2:
+            self.tile_map.pop(idx)
+        self.spawnpoint = new_tile
 
-        else:
-          second_rect_x, second_rect_y = self.get_tile_coords()
-          if second_rect_x < self.first_rect_x:
-            second_rect_x, self.first_rect_x = self.first_rect_x, second_rect_x
-          if second_rect_y < self.first_rect_y:
-            second_rect_y, self.first_rect_y = self.first_rect_y, second_rect_y
-
-          tile_w = second_rect_x - self.first_rect_x + Settings.TILE_SIZE
-          tile_h = second_rect_y - self.first_rect_y + Settings.TILE_SIZE
-
-          new_rect = pygame.Rect(
+  def draw_rect(self, ink_idx: int):
+    if not self.waiting_second_point:
+      if ink_idx == 2:
+        return
+      self.first_rect_x, self.first_rect_y = self.get_tile_coords()
+      temp_tile = [
+        ink_idx,
+        pygame.Rect(
+          [
             self.first_rect_x,
             self.first_rect_y,
-            max(tile_w, Settings.TILE_SIZE),
-            max(tile_h, Settings.TILE_SIZE),
-          )
-
-          if self.temp_tile_idx:
-            self.tile_map[self.temp_tile_idx][1] = new_rect
-
-          self.waiting_second_point = False
-          self.temp_tile_idx = None
-          self.first_rect_x = None
-          self.first_rect_y = None
-      case "enemy":
-        tile_x, tile_y = self.get_tile_coords()
-        if not self.waiting_second_point:
-          self.first_rect_x, self.first_rect_y = self.get_tile_coords()
-
-          enemy_position = [
-            content,
-            pygame.Rect(
-              self.first_rect_x,
-              self.first_rect_y,
-              Settings.TILE_SIZE,
-              Settings.TILE_SIZE,
-            ),
-            pygame.Rect(
-              self.first_rect_x,
-              self.first_rect_y,
-              Settings.TILE_SIZE,
-              Settings.TILE_SIZE,
-            ),
+            Settings.TILE_SIZE,
+            Settings.TILE_SIZE,
           ]
+        ),
+      ]
+      if temp_tile not in self.tile_map:
+        self.temp_tile_idx = len(self.tile_map)
+        self.tile_map.append(temp_tile)
+        self.waiting_second_point = True
 
-          if enemy_position not in self.enemies_map:
-            self.temp_tile_idx = len(self.enemies_map)
-            self.enemies_map.append(enemy_position)
-            self.waiting_second_point = True
-        else:
-          second_rect_x, second_rect_y = self.get_tile_coords()
-          if second_rect_x < self.first_rect_x:
-            second_rect_x, self.first_rect_x = self.first_rect_x, second_rect_x
-          if second_rect_y < self.first_rect_y:
-            second_rect_y, self.first_rect_y = self.first_rect_y, second_rect_y
+    else:
+      second_rect_x, second_rect_y = self.get_tile_coords()
+      if second_rect_x < self.first_rect_x:
+        second_rect_x, self.first_rect_x = self.first_rect_x, second_rect_x
+      if second_rect_y < self.first_rect_y:
+        second_rect_y, self.first_rect_y = self.first_rect_y, second_rect_y
 
-          tile_w = second_rect_x - self.first_rect_x + Settings.TILE_SIZE
-          tile_h = second_rect_y - self.first_rect_y + Settings.TILE_SIZE
+      tile_w = second_rect_x - self.first_rect_x + Settings.TILE_SIZE
+      tile_h = second_rect_y - self.first_rect_y + Settings.TILE_SIZE
 
-          dangerous_hitbox = pygame.Rect(
-            self.first_rect_x,
-            self.first_rect_y,
-            max(tile_w, Settings.TILE_SIZE),
-            max(tile_h, Settings.TILE_SIZE),
-          )
-          if self.temp_tile_idx is not None:
-            self.enemies_map[self.temp_tile_idx][2] = dangerous_hitbox
+      new_rect = pygame.Rect(
+        self.first_rect_x,
+        self.first_rect_y,
+        max(tile_w, Settings.TILE_SIZE),
+        max(tile_h, Settings.TILE_SIZE),
+      )
 
-          self.temp_tile_idx = None
-          self.waiting_second_point = False
-          self.first_rect_x = None
-          self.first_rect_y = None
+      if self.temp_tile_idx:
+        self.tile_map[self.temp_tile_idx][1] = new_rect
+
+      self.waiting_second_point = False
+      self.temp_tile_idx = None
+      self.first_rect_x = None
+      self.first_rect_y = None
+
+  def draw_enemy(self, sprite_data: list[str]):
+    tile_x, tile_y = self.get_tile_coords()
+    if not self.waiting_second_point:
+      self.first_rect_x, self.first_rect_y = tile_x, tile_y
+
+      enemy_position = [
+        sprite_data,
+        pygame.Rect(
+          self.first_rect_x,
+          self.first_rect_y,
+          Settings.TILE_SIZE,
+          Settings.TILE_SIZE,
+        ),
+        pygame.Rect(
+          self.first_rect_x,
+          self.first_rect_y,
+          Settings.TILE_SIZE,
+          Settings.TILE_SIZE,
+        ),
+      ]
+
+      if enemy_position not in self.enemies_map:
+        self.temp_tile_idx = len(self.enemies_map)
+        self.enemies_map.append(enemy_position)
+        self.waiting_second_point = True
+    else:
+      second_rect_x, second_rect_y = tile_x, tile_y
+      if second_rect_x < self.first_rect_x:
+        second_rect_x, self.first_rect_x = self.first_rect_x, second_rect_x
+      if second_rect_y < self.first_rect_y:
+        second_rect_y, self.first_rect_y = self.first_rect_y, second_rect_y
+
+      tile_w = second_rect_x - self.first_rect_x + Settings.TILE_SIZE
+      tile_h = second_rect_y - self.first_rect_y + Settings.TILE_SIZE
+
+      dangerous_hitbox = pygame.Rect(
+        self.first_rect_x,
+        self.first_rect_y,
+        max(tile_w, Settings.TILE_SIZE),
+        max(tile_h, Settings.TILE_SIZE),
+      )
+      if self.temp_tile_idx is not None:
+        self.enemies_map[self.temp_tile_idx][2] = dangerous_hitbox
+
+      self.temp_tile_idx = None
+      self.waiting_second_point = False
+      self.first_rect_x = None
+      self.first_rect_y = None
 
   def erase(self, pensil_type: str):
     tile_x, tile_y = pygame.mouse.get_pos()
