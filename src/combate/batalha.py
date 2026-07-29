@@ -1,5 +1,5 @@
 from ..personagens.Jogador import Personagem, desenhar_personagem
-from ..personagens.inimigos import CPU
+from ..personagens.Inimigo import CPU
 from ..protagonista.cartas import (
     obter_deck_acao,
     obter_deck_utilitarios,

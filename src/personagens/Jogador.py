@@ -1,8 +1,9 @@
 import pygame
-from src.personagens.personagem import Personagem
-import utils.sprites as sprite
-from utils.Tile_map import paredes, spawnpoint, inimigos
+from .Personagem import Personagem
+from ..utils import sprites as sprite
+from ..utils.Tile_map import paredes, spawnpoint, lista_inimigos
 from Settings import ESCALA
+from src.mecanicas.Inventario import Inventory
 
 
 class Jogador(Personagem):
@@ -22,8 +23,8 @@ class Jogador(Personagem):
       self.altura,
     )
 
-    self.sprites_jogador = sprite.Player()
-    self.direcao = sprite.FRENTE
+    self.sprites_jogador = sprite.Jogador()
+    self.direcao = sprite.Inimigo.FRENTE
 
     self.sprites_atuais = self.sprites_jogador.parado(self.direcao)
 
@@ -35,13 +36,15 @@ class Jogador(Personagem):
 
     self.delta_v = 10
 
+    self.inventario = Inventory(tela)
+
   def eventos(self):
     self.sprites_atuais = self.sprites_jogador.andando(self.direcao)
     tecla = pygame.key.get_pressed()
-    livre = True
+    livre = not self.inventario.is_open
 
     if tecla[pygame.K_a]:
-      self.direcao = sprite.ESQUERDA
+      self.direcao = sprite.Inimigo.ESQUERDA
 
       if self.camera_x == 0:
         livre = False
@@ -77,21 +80,19 @@ class Jogador(Personagem):
           self.camera_x -= self.delta_v
           for conteudo, parede in paredes:
             parede.x += self.delta_v
-          for _, colisao, campo_inimigo in inimigos:
-            colisao.x += self.delta_v
-            campo_inimigo.x += self.delta_v
+          for inimigo in lista_inimigos:
+            inimigo.retang.x += self.delta_v
 
         else:
           dif = (self.rect.left - parede.right - 1) // 2
           self.camera_x -= dif
           for conteudo, parede in paredes:
             parede.x += dif
-          for _, colisao, campo_inimigo in inimigos:
-            colisao.x += dif
-            campo_inimigo.x += dif
+          for inimigo in lista_inimigos:
+            inimigo.retang.x += dif
 
     elif tecla[pygame.K_d]:
-      self.direcao = sprite.DIREITA
+      self.direcao = sprite.Inimigo.DIREITA
 
       if (
         self.camera_x == self.mapa.get_width() - self.mapa.get_width() / ESCALA
@@ -129,21 +130,19 @@ class Jogador(Personagem):
           self.camera_x += self.delta_v
           for conteudo, parede in paredes:
             parede.x -= self.delta_v
-          for _, colisao, campo_inimigo in inimigos:
-            colisao.x -= self.delta_v
-            campo_inimigo.x -= self.delta_v
+          for inimigo in lista_inimigos:
+            inimigo.retang.x -= self.delta_v
 
         else:
           dif = (parede.x - self.rect.right - 1) // 2
           self.camera_x += dif
           for conteudo, parede in paredes:
             parede.x -= dif
-          for _, colisao, campo_inimigo in inimigos:
-            colisao.x -= dif
-            campo_inimigo.x -= dif
+          for inimigo in lista_inimigos:
+            inimigo.retang.x -= dif
 
     elif tecla[pygame.K_w]:
-      self.direcao = sprite.COSTAS
+      self.direcao = sprite.Inimigo.COSTAS
 
       if self.camera_y == 0:
         livre = False
@@ -181,21 +180,19 @@ class Jogador(Personagem):
           for conteudo, parede in paredes:
             parede.y += self.delta_v
 
-          for _, colisao, campo_inimigo in inimigos:
-            colisao.y += self.delta_v
-            campo_inimigo.y += self.delta_v
+          for inimigo in lista_inimigos:
+            inimigo.retang.y += self.delta_v
 
         else:
           dif = (self.rect.top - parede.bottom) // 2
           self.camera_y -= dif
           for conteudo, parede in paredes:
             parede.y += dif
-          for _, colisao, campo_inimigo in inimigos:
-            colisao.y += dif
-            campo_inimigo.y += dif
+          for inimigo in lista_inimigos:
+            inimigo.retang.y += dif
 
     elif tecla[pygame.K_s]:
-      self.direcao = sprite.FRENTE
+      self.direcao = sprite.Inimigo.FRENTE
 
       if (
         self.camera_y
@@ -235,23 +232,22 @@ class Jogador(Personagem):
           for conteudo, parede in paredes:
             parede.y -= self.delta_v
 
-          for _, colisao, campo_inimigo in inimigos:
-            colisao.y -= self.delta_v
-            campo_inimigo.y -= self.delta_v
+          for inimigo in lista_inimigos:
+            inimigo.retang.y -= self.delta_v
 
         else:
           dif = (parede.top - self.rect.bottom) // 2
           self.camera_y += dif
           for conteudo, parede in paredes:
             parede.y -= dif
-          for _, colisao, campo_inimigo in inimigos:
-            colisao.y -= dif
-            campo_inimigo.y -= dif
+          for inimigo in lista_inimigos:
+            inimigo.retang.y -= dif
 
     else:
       self.frame = 0
       self.sprites_atuais = self.sprites_jogador.parado(self.direcao)
 
+    
   def update(self):
     self.camera_x = max(
       0,
@@ -278,6 +274,7 @@ class Jogador(Personagem):
       self.imagem, (self.largura * ESCALA, self.altura * ESCALA)
     )
 
+    self.inventario.update()
   def render(self):
     if self.mostrar_colisao:
       pygame.draw.rect(
@@ -291,7 +288,7 @@ class Jogador(Personagem):
         ),
       )
 
-    self.imagem = pygame.transform.scale_by(self.imagem, 2.4)
+    self.imagem = pygame.transform.scale_by(self.imagem, 2)
     self.tela.blit(
       self.imagem,
       (
@@ -301,3 +298,5 @@ class Jogador(Personagem):
         * ESCALA,
       ),
     )
+    if self.inventario.is_open:
+      self.inventario.render()

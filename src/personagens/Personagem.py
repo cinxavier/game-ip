@@ -1,7 +1,8 @@
 import pygame
 
-class Personagem:
-  def __init__(self,tela: pygame.Surface):
+
+class Personagem(pygame.sprite.Sprite):
+  def __init__(self):
     pass
 
   def eventos(self):

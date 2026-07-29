@@ -1,8 +1,8 @@
 import pygame
-from src.Canvas import Canvas
-from src.Pallet import Pallet
-from src.Help_Box import Help
-from src.Filters import Filters
+from components.Canvas import Canvas
+from components.Pallet import Pallet
+from components.Help_Box import Help
+from components.Filters import Filters
 import Settings
 from Settings import (
   CANVAS_HEIGHT,

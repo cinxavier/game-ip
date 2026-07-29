@@ -1,6 +1,6 @@
 import pygame
 from Settings import ESCALA, PALLET_COLORS, COLORS
-from utils.Tile_map import paredes, inimigos
+from .Tile_map import paredes, lista_inimigos
 
 screen = pygame.display.get_desktop_sizes()[0]
 
@@ -44,24 +44,20 @@ class Mapa:
           ),
         )
 
-    for sprite_inimigo, colisao, campo in inimigos:
+    for inimigo in lista_inimigos:
       if self.show_hitboxes:
         pygame.draw.rect(
           self.tela,
           COLORS["enemy"],
           (
-            campo.x * ESCALA,
-            campo.y * ESCALA,
-            campo.w * ESCALA,
-            campo.h * ESCALA,
+            inimigo.colisao.x * ESCALA,
+            inimigo.colisao.y * ESCALA,
+            inimigo.colisao.w * ESCALA,
+            inimigo.colisao.h * ESCALA,
           ),
         )
-
-      sprite = pygame.transform.scale_by(sprite_inimigo, ESCALA)
-      self.tela.blit(
-        sprite,
-        (colisao.x * ESCALA, colisao.y * ESCALA),
-      )
+      inimigo.update()
+      inimigo.render(self.tela)
 
   def toggle_hitboxes(self):
     self.show_hitboxes = not self.show_hitboxes
