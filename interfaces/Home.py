@@ -1,5 +1,5 @@
 import pygame
-from .Base_Screen import ScreenBase
+from src.types.Base_Screen import ScreenBase
 from .components.Button import Button
 from game_data import BACKGROUND, SECONDARY, button_border_thickness
 from src.types.Type_Switch_Stand import Type_Switch_Stand
@@ -57,14 +57,18 @@ class Home(ScreenBase):
   def handle_events(self, events: list[pygame.Event]):
     for event in events:
       if event.type == pygame.KEYDOWN:
-        if event.key == pygame.K_d:
-          self.hovering_btn_idx += 1
+        match event.key:
+          case pygame.K_ESCAPE:
+            self.game._running = False
+            break
+          case pygame.K_d:
+            self.hovering_btn_idx += 1
 
-        if event.key == pygame.K_a:
-          self.hovering_btn_idx -= 1
+          case pygame.K_a:
+            self.hovering_btn_idx -= 1
 
-        if event.key == pygame.K_SPACE:
-          self.selected_btn.on_click()
+          case pygame.K_SPACE:
+            self.selected_btn.on_click()
 
   def render(self):
     self._screen.fill(BACKGROUND)

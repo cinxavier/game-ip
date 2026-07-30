@@ -45,6 +45,7 @@ class Inimigo:
     DIREITA,
     ESQUERDA,
   ]
+
   BOSS = "Boss"
   SLIME = "Slime"
   NIVEIS = [BOSS, SLIME]
@@ -66,14 +67,35 @@ class Inimigo:
 
 
 class Jogador:
+  ANDANDO = "Andando"
+  PARADO = "Parado"
+  ATAQUE = "Ataque"
+  ACOES = [ANDANDO, PARADO]
+
+  FRENTE = "Frente"
+  COSTAS = "Costas"
+  DIREITA = "Direita"
+  ESQUERDA = "Esquerda"
+  DIRECOES = [FRENTE, COSTAS, DIREITA, ESQUERDA]
+
+  def __init__(self):
+    self.sprites: dict[str, dict[str, list[pygame.Surface]]] = {}
+    for acao in self.ACOES:
+      self.sprites[acao] = {}
+      for direcao in self.DIRECOES:
+        self.sprites[acao][direcao] = listar(
+          f"assets/images/Player/{acao}", direcao
+        )
+    self.sprites[self.ATAQUE] = listar("assets/images/Player/Atacando")
+
   def andando(self, direcao):
-    return listar("assets/images/Player/Andando", direcao)
+    return self.sprites[self.ANDANDO][direcao]
 
   def parado(self, direcao):
-    return listar("assets/images/Player/Parado", direcao)
+    return self.sprites[self.PARADO][direcao]
 
-  def atacando(self):
-    return listar("assets/images/Player/Atacando")
+  def atacando(self) -> list[pygame.Surface]:
+    return self.sprites[self.ATAQUE]
 
 
 class Carta:
@@ -86,10 +108,10 @@ class Carta:
     BORRACHA,
   ]
 
-  BENCAO = 'Bencao'
-  CURA = 'Cura'
-  INVISIBILIDADE = 'Invisibilidade'
-  
+  BENCAO = "Bencao"
+  CURA = "Cura"
+  INVISIBILIDADE = "Invisibilidade"
+
   ELEMENTAIS = "Elementais"
   FORMAS = "Formas"
   UTILITARIOS = "Utilitarios"

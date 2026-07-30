@@ -14,5 +14,5 @@ class ScreenBase:
   def update(self):
     pass
 
-  def render(self, screen: pygame.Surface):
+  def render(self):
     pass

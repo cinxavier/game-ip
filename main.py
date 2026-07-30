@@ -1,7 +1,9 @@
 import pygame
 from interfaces.Home import Home
-from src.Jogo import Jogo
+from src.Exploracao import Exploracao
+from src.Batalha import Batalha
 from src.types.Type_Switch_Stand import Type_Switch_Stand
+
 
 class Main(Type_Switch_Stand):
   def __init__(self):
@@ -11,7 +13,11 @@ class Main(Type_Switch_Stand):
     self._screen = pygame.display.set_mode(size, pygame.FULLSCREEN)
     self._running = True
 
-    self.screens = {"home": Home(self), "game": Jogo(self)}
+    self.screens = {
+      "home": Home(self),
+      "game": Exploracao(self),
+      "battle": Batalha(self),
+    }
     self.curr_screen = self.screens["home"]
 
   def cleanup(self):

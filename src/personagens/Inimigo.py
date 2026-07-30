@@ -1,7 +1,7 @@
 import pygame
 from src.utils import sprites
 from Settings import ESCALA
-from .Personagem import Personagem
+from ..types.Personagem import Personagem
 
 
 class Inimigo(Personagem):

@@ -1,6 +1,6 @@
 import pygame
 from Settings import ESCALA, PALLET_COLORS, COLORS
-from .Tile_map import paredes, lista_inimigos
+import src.utils.Tile_map as Tile_map
 
 screen = pygame.display.get_desktop_sizes()[0]
 
@@ -32,7 +32,7 @@ class Mapa:
     self.tela.blit(area_parcial, (0, 0))
 
     if self.show_hitboxes:
-      for conteudo, tijolo in paredes:
+      for conteudo, tijolo in Tile_map.paredes:
         pygame.draw.rect(
           self.tela,
           PALLET_COLORS[conteudo],
@@ -44,7 +44,7 @@ class Mapa:
           ),
         )
 
-    for inimigo in lista_inimigos:
+    for inimigo in Tile_map.lista_inimigos:
       if self.show_hitboxes:
         pygame.draw.rect(
           self.tela,

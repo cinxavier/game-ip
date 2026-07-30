@@ -26,4 +26,4 @@ CANVAS_SIZE = CANVAS_WIDTH, CANVAS_HEIGHT = (
   SCREEN_WIDTH * PROPORION_HW,
 )
 
-DEFAULT_FONT = pygame.font.Font("assets/fonts/main_font.ttf", 40)
+DEFAULT_FONT = pygame.font.Font("assets/fonts/main_font.ttf",30)
