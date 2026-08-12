@@ -31,7 +31,7 @@ class Inimigo:
   ]
 
   ANDANDO = "Andando"
-  ATAQUE = "Ataque"
+  ATAQUE = "Atacando"
   PARADO = "Parado"
   MORTE = "Morte"
 
@@ -59,8 +59,11 @@ class Inimigo:
       f"assets/images/Inimigos/{self.nivel}/{self.elemento}/Parado", direcao
     )
 
-  def atacando(self):
-    return listar(f"assets/images/Inimigos/{self.nivel}/{self.elemento}/Ataque")
+  def atacando(self, direcao):
+    return listar(
+      f"assets/images/Inimigos/{self.nivel}/{self.elemento}/{self.ATAQUE}",
+      direcao,
+    )
 
   def morrendo(self):
     return listar(f"assets/images/Inimigos/{self.nivel}/{self.elemento}/Morte")
@@ -69,8 +72,8 @@ class Inimigo:
 class Jogador:
   ANDANDO = "Andando"
   PARADO = "Parado"
-  ATAQUE = "Ataque"
-  ACOES = [ANDANDO, PARADO]
+  ATAQUE = "Atacando"
+  ACOES = [ANDANDO, PARADO, ATAQUE]
 
   FRENTE = "Frente"
   COSTAS = "Costas"
@@ -83,10 +86,12 @@ class Jogador:
     for acao in self.ACOES:
       self.sprites[acao] = {}
       for direcao in self.DIRECOES:
-        self.sprites[acao][direcao] = listar(
-          f"assets/images/Player/{acao}", direcao
-        )
-    self.sprites[self.ATAQUE] = listar("assets/images/Player/Atacando")
+        if acao != self.ATAQUE:
+          self.sprites[acao][direcao] = listar(
+            f"assets/images/Player/{acao}", direcao
+          )
+        else:
+          self.sprites[acao] = listar("assets/images/Player/Atacando")
 
   def andando(self, direcao):
     return self.sprites[self.ANDANDO][direcao]
@@ -94,7 +99,7 @@ class Jogador:
   def parado(self, direcao):
     return self.sprites[self.PARADO][direcao]
 
-  def atacando(self) -> list[pygame.Surface]:
+  def atacando(self):
     return self.sprites[self.ATAQUE]
 
 

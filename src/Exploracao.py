@@ -40,11 +40,14 @@ class Exploracao(ScreenBase):
   def update(self):
     self.tempo.tick(24)
     self.player.update()
-    for idx,inimigo in enumerate(Tile_Map.lista_inimigos):
+    for idx, inimigo in enumerate(Tile_Map.lista_inimigos):
       if inimigo.colisao.colliderect(self.player.rect):
         self.game.change_screen("battle")
+        self.game.curr_screen.set_enemy(inimigo)
+
         Tile_Map.lista_inimigos.pop(idx)
         break
+
   def render(self):
     self.mapa.render((self.player.camera_x, self.player.camera_y))
     self.player.render()

@@ -14,6 +14,7 @@ class Inimigo(Personagem):
     self.retang = retang
     self.colisao = colisao
     self.largura, self.altura = self.retang.w, self.retang.h
+    self.dados_sprite = dados_sprite
     self.sprites = sprites.Inimigo(dados_sprite[0], dados_sprite[1]).parado(
       dados_sprite[2]
     )

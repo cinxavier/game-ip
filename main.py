@@ -19,12 +19,14 @@ class Main(Type_Switch_Stand):
       "battle": Batalha(self),
     }
     self.curr_screen = self.screens["home"]
+    self.battle_init = False
 
   def cleanup(self):
     pygame.quit()
 
   def change_screen(self, new_screen_name: str):
     self.curr_screen = self.screens[new_screen_name]
+    self.battle_init = True
 
   def run(self):
     while self._running:
@@ -35,6 +37,9 @@ class Main(Type_Switch_Stand):
           continue
 
       self.curr_screen.handle_events(events)
+      if self.battle_init:
+        self.battle_init = False
+        continue
 
       self.curr_screen.update()
       self.curr_screen.render()
