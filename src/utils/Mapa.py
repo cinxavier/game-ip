@@ -1,5 +1,7 @@
 import pygame
-from Settings import ESCALA, PALLET_COLORS, COLORS
+from src.Settings import ESCALA
+from map_maker.MM_Settings import PALLET_COLORS
+from theme import colors
 import src.utils.Tile_map as Tile_map
 
 screen = pygame.display.get_desktop_sizes()[0]
@@ -48,7 +50,7 @@ class Mapa:
       if self.show_hitboxes:
         pygame.draw.rect(
           self.tela,
-          COLORS["enemy"],
+          colors.ENEMY_HOTBOX,
           (
             inimigo.colisao.x * ESCALA,
             inimigo.colisao.y * ESCALA,

@@ -41,8 +41,8 @@ class Inimigo:
   ESQUERDA = "Esquerda"
   DIRECOES = [
     FRENTE,
-    COSTAS,
     DIREITA,
+    COSTAS,
     ESQUERDA,
   ]
 

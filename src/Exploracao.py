@@ -3,7 +3,7 @@ from src.personagens.Jogador import Jogador
 import src.utils.Tile_map as Tile_Map
 from src.utils.Tile_map import paredes, init_inimigos
 from src.utils.Mapa import Mapa
-from Settings import ESCALA
+from src.Settings import ESCALA
 from src.types.Base_Screen import ScreenBase
 from src.types.Type_Switch_Stand import Type_Switch_Stand
 

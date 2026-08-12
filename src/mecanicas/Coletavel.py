@@ -1,5 +1,5 @@
 import pygame
-import src.utils.sprites as sprite
+import src.utils.Sprites as sprite
 
 
 class Coletavel:

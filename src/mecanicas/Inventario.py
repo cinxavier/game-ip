@@ -1,7 +1,7 @@
 import pygame
-from Settings import COLORS, DEFAULT_FONT
-from game_data.colors import SECONDARY
-import src.utils.sprites as sprites
+from theme import colors
+from theme import fonts
+import src.utils.Sprites as sprites
 
 
 class Inventory:
@@ -88,7 +88,7 @@ class Inventory:
     self.container = self._screen.subsurface(self.rect)
     pygame.draw.rect(
       self.container,
-      COLORS["bg"],
+      colors.BACKGROUND,
       (0, 0, self.container.width, self.container.height),
     )
 
@@ -104,7 +104,7 @@ class Inventory:
       ),
     )
 
-    txt = DEFAULT_FONT.render(f"HP: {self.hp}", False, COLORS["fg"])
+    txt = fonts.DEFAULT.render(f"HP: {self.hp}", False, colors.FOREGROUND)
     self.container.blit(
       txt,
       (
@@ -125,7 +125,7 @@ class Inventory:
         (self.bar_size[0] * (self.mp / 100), self.bar_size[1]),
       ),
     )
-    txt = DEFAULT_FONT.render(f"MP: {self.mp}", False, COLORS["fg"])
+    txt = fonts.DEFAULT.render(f"MP: {self.mp}", False, colors.FOREGROUND)
     self.container.blit(
       txt,
       (
@@ -150,7 +150,7 @@ class Inventory:
         if l_idx == self.selected_line and c_idx == self.selected_col:
           pygame.draw.rect(
             self.container,
-            SECONDARY,
+            colors.SECONDARY,
             (
               x - self.border / 2,
               y - self.border / 2,
@@ -161,7 +161,7 @@ class Inventory:
 
         pygame.draw.rect(
           self.container,
-          COLORS["bg"],
+          colors.BACKGROUND,
           (
             x,
             y,
@@ -171,8 +171,8 @@ class Inventory:
         )
         if self.items[line][col]["qnt"] > 0:
           self.container.blit(self.items[line][col]["img"], (x, y))
-          txt = DEFAULT_FONT.render(
-            str(self.items[line][col]["qnt"]), False, COLORS["fg"]
+          txt = fonts.DEFAULT.render(
+            str(self.items[line][col]["qnt"]), False, colors.FOREGROUND
           )
           self.container.blit(
             txt,
@@ -182,8 +182,6 @@ class Inventory:
             ),
           )
         else:
-          txt = DEFAULT_FONT.render("?", False, COLORS["fg"])
-          txt = pygame.transform.scale(
-            txt, (self.tile_size, self.tile_size)
-          )
+          txt = fonts.DEFAULT.render("?", False, colors.FOREGROUND)
+          txt = pygame.transform.scale(txt, (self.tile_size, self.tile_size))
           self.container.blit(txt, (x, y))

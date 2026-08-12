@@ -1,0 +1,2 @@
+BORDER = 8
+BTN_BORDER = 4

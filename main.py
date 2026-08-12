@@ -1,5 +1,5 @@
 import pygame
-from interfaces.Home import Home
+from UI.Home import Home
 from src.Exploracao import Exploracao
 from src.Batalha import Batalha
 from src.types.Type_Switch_Stand import Type_Switch_Stand

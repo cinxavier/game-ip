@@ -1,9 +1,9 @@
 import pygame
 from ..types.Personagem import Personagem
-from ..utils import sprites as sprite
+import src.utils.Sprites as sprite
 from ..utils.Tile_map import paredes, spawnpoint
 import src.utils.Tile_map as tile_map
-from Settings import ESCALA
+from src.Settings import ESCALA
 from src.mecanicas.Inventario import Inventory
 
 

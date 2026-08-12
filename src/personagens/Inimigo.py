@@ -1,6 +1,6 @@
 import pygame
-from src.utils import sprites
-from Settings import ESCALA
+import src.utils.Sprites as sprites
+from src.Settings import ESCALA
 from ..types.Personagem import Personagem
 
 

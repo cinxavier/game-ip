@@ -1,8 +1,7 @@
 import pygame
 from src.personagens.Inimigo import Inimigo
 from src.types.Base_Screen import ScreenBase
-import src.utils.sprites as sprites
-
+from src.utils import Sprites
 
 class Batalha(ScreenBase):
   def __init__(self, game):
@@ -12,7 +11,7 @@ class Batalha(ScreenBase):
     )
     self.campo = pygame.transform.smoothscale(self.campo, self._screen.size)
 
-    self.player_sprites = sprites.Jogador().atacando()
+    self.player_sprites = Sprites.Jogador().atacando()
     self.player_sprite: pygame.Surface = None
 
     for idx, sprite in enumerate(self.player_sprites):
@@ -57,7 +56,7 @@ class Batalha(ScreenBase):
 
   def set_enemy(self, inimigo: Inimigo):
     self.enemy_data = inimigo.dados_sprite
-    self.enemy_sprites = sprites.Inimigo(
+    self.enemy_sprites = Sprites.Inimigo(
       self.enemy_data[0], self.enemy_data[1]
     ).atacando(self.enemy_data[2])
     for idx, sprite in enumerate(self.enemy_sprites):
