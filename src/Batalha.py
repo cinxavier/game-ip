@@ -40,7 +40,7 @@ class Batalha(ScreenBase):
   def update(self):
     if self.inimigo:
       self.frame_player += 0.3
-      self.frame_inimigo += 0.4 if self.inimigo_animacao_atual == "ataque" else 0.2
+      self.frame_inimigo += 0.2 if self.inimigo_animacao_atual == "ataque" else 0.2
 
       if self.frame_player >= len(self.player_sprites[self.player_animacao_atual]):
         self.frame_player = 0
@@ -76,13 +76,23 @@ class Batalha(ScreenBase):
         ),
       )
 
+      carta_ex = self.player.cartas[0].sprite
+      container = pygame.Rect(
+        0, 0, carta_ex.width * 0.75 * len(self.player.cartas), carta_ex.height
+      )
+
+      container = self._screen.subsurface(
+        container.center(
+          center=(
+            self._screen.width / 2,
+            self._screen.height - carta_ex.height - 100,
+          )
+        )
+      )
+
       for idx, carta in enumerate(self.player.cartas):
         carta.render(
-          self._screen,
-          (
-            self._screen.width / 2 - carta.sprite.width / 2,
-            self._screen.height - carta.sprite.height - 150,
-          ),
+          container, (carta_ex.width * 0.75 * idx - carta_ex.width * 0.15, 0)
         )
 
   def set_enemy(self, inimigo: Inimigo):
@@ -96,7 +106,7 @@ class Batalha(ScreenBase):
 
     for sprites in self.inimigo_sprites:
       for idx, sprite in enumerate(self.inimigo_sprites[sprites]):
-        self.inimigo_sprites[sprites][idx] = pygame.transform.scale(sprite, (110, 110))
+        self.inimigo_sprites[sprites][idx] = pygame.transform.scale(sprite, (220, 220))
 
     self.frame_inimigo = 0
     self.inimigo_animacao_atual = "parado"

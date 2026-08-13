@@ -12,7 +12,11 @@ class Jogador(Personagem):
   def __init__(self, tela: pygame.Surface, mapa: pygame.Surface):
     self.hp = 10
     self.mp = 70
-    self.cartas = [Carta(Sprites.Carta.FORMA, Sprites.Carta.QUADRADO)]
+    self.cartas = [
+      Carta(Sprites.Carta.FORMA, Sprites.Carta.QUADRADO),
+      Carta(Sprites.Carta.FORMA, Sprites.Carta.CIRCULO),
+      Carta(Sprites.Carta.FORMA, Sprites.Carta.TRIANGULO),
+    ]
     self.tamanho = self.largura, self.altura = (16, 14)
     spawn = pygame.Rect(spawnpoint[1])
     self.camera_x = spawn.x
