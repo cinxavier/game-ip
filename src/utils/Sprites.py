@@ -103,13 +103,13 @@ class Carta:
   CURA = "Cura"
   INVISIBILIDADE = "Invisibilidade"
 
-  ELEMENTAIS = "Elementais"
-  FORMAS = "Formas"
-  UTILITARIOS = "Utilitarios"
+  ELEMENTAL = "Elementais"
+  FORMA = "Formas"
+  UTILITARIO = "Utilitarios"
   TIPOS_CARTAS = [
-    ELEMENTAIS,
-    FORMAS,
-    UTILITARIOS,
+    ELEMENTAL,
+    FORMA,
+    UTILITARIO,
   ]
 
   CIRCULO = "Circulo"
@@ -124,15 +124,15 @@ class Carta:
   def __init__(
     self,
     tipo_carta: str,
-    carta: str,
+    elemento: str,
   ):
     self.tipo_carta = tipo_carta
-    self.carta = carta
+    self.elemento = elemento
 
   def coletavel(self):
     return listar(f"assets/images/Cartas/{self.tipo_carta}/Coletavel")
 
   def item(self):
     return pygame.image.load(
-      f"assets/images/Cartas/{self.tipo_carta}/Itens/{self.carta}.png"
+      f"assets/images/Cartas/{self.tipo_carta}/Itens/{self.elemento}.png"
     )

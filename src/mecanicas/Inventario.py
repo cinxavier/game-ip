@@ -15,17 +15,17 @@ class Inventory:
     self.gap = 5
     self.border = 10
     self.items = {
-      sprites.Carta.FORMAS: {
+      sprites.Carta.FORMA: {
         "quadrado": {"qnt": 1},
         "triangulo": {"qnt": 1},
         "circulo": {"qnt": 0},
       },
-      sprites.Carta.ELEMENTAIS: {
+      sprites.Carta.ELEMENTAL: {
         "eletricidade": {"qnt": 1},
         "metal": {"qnt": 0},
         "borracha": {"qnt": 0},
       },
-      sprites.Carta.UTILITARIOS: {
+      sprites.Carta.UTILITARIO: {
         "cura": {"qnt": 2},
         "invisibilidade": {"qnt": 0},
         "bencao": {"qnt": 0},

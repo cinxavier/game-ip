@@ -15,8 +15,9 @@ class Main(Type_Switch_Stand):
     self.screens = {
       "home": Home(self),
       "game": Exploracao(self),
-      "battle": Batalha(self),
     }
+    self.screens["battle"] = Batalha(self, self.screens["game"].player)
+
     self.curr_screen = self.screens["home"]
     self.battle_init = False
 

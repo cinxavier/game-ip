@@ -1,16 +1,18 @@
 import pygame
-from ..types.Personagem import Personagem
-from src.utils import Sprites
-from ..utils.Tile_map import paredes, spawnpoint
 import src.utils.Tile_map as tile_map
+from src.types.Personagem import Personagem
+from src.utils import Sprites
+from src.utils.Tile_map import paredes, spawnpoint
 from src.Settings import ESCALA
 from src.mecanicas.Inventario import Inventory
+from src.mecanicas.Carta import Carta
 
 
 class Jogador(Personagem):
   def __init__(self, tela: pygame.Surface, mapa: pygame.Surface):
     self.hp = 10
     self.mp = 70
+    self.cartas = [Carta(Sprites.Carta.FORMA, Sprites.Carta.QUADRADO)]
     self.tamanho = self.largura, self.altura = (16, 14)
     spawn = pygame.Rect(spawnpoint[1])
     self.camera_x = spawn.x
@@ -88,9 +90,7 @@ class Jogador(Personagem):
     elif tecla[pygame.K_d]:
       self.direcao = Sprites.DIREITA
 
-      if (
-        self.camera_x == self.mapa.get_width() - self.mapa.get_width() / ESCALA
-      ):
+      if self.camera_x == self.mapa.get_width() - self.mapa.get_width() / ESCALA:
         livre = False
 
       if livre:
@@ -169,10 +169,7 @@ class Jogador(Personagem):
     elif tecla[pygame.K_s]:
       self.direcao = Sprites.FRENTE
 
-      if (
-        self.camera_y
-        == self.mapa.get_height() - self.mapa.get_height() / ESCALA
-      ):
+      if self.camera_y == self.mapa.get_height() - self.mapa.get_height() / ESCALA:
         livre = False
 
       if livre:
@@ -233,15 +230,11 @@ class Jogador(Personagem):
   def update(self):
     self.camera_x = max(
       0,
-      min(
-        self.camera_x, self.mapa.get_width() - self.mapa.get_width() / ESCALA
-      ),
+      min(self.camera_x, self.mapa.get_width() - self.mapa.get_width() / ESCALA),
     )
     self.camera_y = max(
       0,
-      min(
-        self.camera_y, self.mapa.get_height() - self.tela.get_height() / ESCALA
-      ),
+      min(self.camera_y, self.mapa.get_height() - self.tela.get_height() / ESCALA),
     )
 
     self.rect.x = self.mapa.get_width() / ESCALA / 2 - self.largura
@@ -275,10 +268,8 @@ class Jogador(Personagem):
     self.tela.blit(
       self.imagem,
       (
-        (self.rect.x - self.imagem.get_width() / ESCALA / 2 + self.rect.w / 2)
-        * ESCALA,
-        (self.rect.y - self.imagem.get_height() / ESCALA + self.rect.h)
-        * ESCALA,
+        (self.rect.x - self.imagem.get_width() / ESCALA / 2 + self.rect.w / 2) * ESCALA,
+        (self.rect.y - self.imagem.get_height() / ESCALA + self.rect.h) * ESCALA,
       ),
     )
     if self.inventario.is_open:

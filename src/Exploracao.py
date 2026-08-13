@@ -43,7 +43,7 @@ class Exploracao(ScreenBase):
     for idx, inimigo in enumerate(Tile_Map.lista_inimigos):
       if inimigo.colisao.colliderect(self.player.rect):
         self.game.change_screen("battle")
-        self.game.curr_screen.set_enemy(self.player, inimigo)
+        self.game.curr_screen.set_enemy(inimigo)
 
         Tile_Map.lista_inimigos.pop(idx)
         break
