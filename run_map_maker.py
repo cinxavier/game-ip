@@ -3,17 +3,12 @@ from map_maker import Canvas
 from map_maker import Pallet
 from map_maker import Help
 from map_maker import Filters
-
-from src.Settings import (
-  DEFAULT_FONT,
-  COLORS,
-)
 from map_maker import MM_Settings
 from map_maker.MM_Settings import (
   CANVAS_HEIGHT,
   CANVAS_WIDTH,
 )
-
+from theme import colors, fonts
 pygame.init()
 pygame.display.set_caption("Map Maker")
 
@@ -118,13 +113,13 @@ while running_game:
     )
     screen.blit(sprite_demo, canvas.get_tile_coords())
   else:
-    pensil_mode = DEFAULT_FONT.render(
+    pensil_mode = fonts.DEFAULT.render(
       str(
         pallet.curr_pensil + ("*" if canvas.waiting_second_point else "")
       ).capitalize(),
       False,
-      COLORS["fg"],
-      COLORS["bg"],
+      colors.FOREGROUND,
+      colors.BACKGROUND,
     )
     screen.blit(
       pensil_mode, (pygame.mouse.get_pos()[0] + 20, pygame.mouse.get_pos()[1])

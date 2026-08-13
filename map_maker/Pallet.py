@@ -3,12 +3,13 @@ from . import MM_Settings
 from .MM_Settings import PALLET_COLORS, PENSILS
 from theme import fonts, sizes, colors
 from src.utils.Sprites import Inimigo
+from src.utils import Sprites
 
 sprites: list[tuple[pygame.Surface, list[str]]] = []
 
-for nivel in Inimigo.NIVEIS:
-  for tipo in Inimigo.ELEMENTOS:
-    sprite = Inimigo(nivel, tipo).parado(Inimigo.FRENTE)[0]
+for nivel in Sprites.NIVEIS:
+  for tipo in Sprites.ELEMENTOS:
+    sprite = Inimigo(nivel, tipo).parado(Sprites.FRENTE)[0]
     sprite = pygame.transform.scale(sprite, (120, 120))
     sprites.append([sprite, [nivel, tipo]])
 
@@ -154,18 +155,18 @@ class Pallet:
   def change_sprite_direction(self):
     self.sprite_direction_idx += (
       1
-      if self.sprite_direction_idx < len(Inimigo.DIRECOES) - 1
-      else -(len(Inimigo.DIRECOES) - 1)
+      if self.sprite_direction_idx < len(Sprites.DIRECOES) - 1
+      else -(len(Sprites.DIRECOES) - 1)
     )
 
   def get_sprite(self, only_data: bool = False):
     sprite = sprites[self.selected_sprite][1] + [
-      Inimigo.DIRECOES[self.sprite_direction_idx]
+      Sprites.DIRECOES[self.sprite_direction_idx]
     ]
     if only_data:
       return sprite
     return Inimigo(sprite[0], sprite[1]).parado(
-      Inimigo.DIRECOES[self.sprite_direction_idx]
+      Sprites.DIRECOES[self.sprite_direction_idx]
     )[0]
 
   def change_pensil(self):

@@ -8,7 +8,6 @@ from src.types.Type_Switch_Stand import Type_Switch_Stand
 class Main(Type_Switch_Stand):
   def __init__(self):
     pygame.init()
-
     size = pygame.display.get_desktop_sizes()[0]
     self._screen = pygame.display.set_mode(size, pygame.FULLSCREEN)
     self._running = True

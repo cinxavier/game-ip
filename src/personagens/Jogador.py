@@ -1,6 +1,6 @@
 import pygame
 from ..types.Personagem import Personagem
-import src.utils.Sprites as sprite
+from src.utils import Sprites
 from ..utils.Tile_map import paredes, spawnpoint
 import src.utils.Tile_map as tile_map
 from src.Settings import ESCALA
@@ -26,8 +26,8 @@ class Jogador(Personagem):
       self.altura,
     )
 
-    self.sprites = sprite.Jogador()
-    self.direcao = sprite.Inimigo.FRENTE
+    self.sprites = Sprites.Jogador()
+    self.direcao = Sprites.FRENTE
     self.sprites_atuais = self.sprites.parado(self.direcao)
 
     self.frame = 0
@@ -47,7 +47,7 @@ class Jogador(Personagem):
     move_x = 0
     move_y = 0
     if tecla[pygame.K_a]:
-      self.direcao = sprite.Inimigo.ESQUERDA
+      self.direcao = Sprites.ESQUERDA
 
       if self.camera_x == 0:
         livre = False
@@ -86,7 +86,7 @@ class Jogador(Personagem):
           move_x -= dif
 
     elif tecla[pygame.K_d]:
-      self.direcao = sprite.Inimigo.DIREITA
+      self.direcao = Sprites.DIREITA
 
       if (
         self.camera_x == self.mapa.get_width() - self.mapa.get_width() / ESCALA
@@ -127,7 +127,7 @@ class Jogador(Personagem):
           move_x += dif
 
     elif tecla[pygame.K_w]:
-      self.direcao = sprite.Inimigo.COSTAS
+      self.direcao = Sprites.COSTAS
 
       if self.camera_y == 0:
         livre = False
@@ -167,7 +167,7 @@ class Jogador(Personagem):
           move_y -= dif
 
     elif tecla[pygame.K_s]:
-      self.direcao = sprite.Inimigo.FRENTE
+      self.direcao = Sprites.FRENTE
 
       if (
         self.camera_y
@@ -229,6 +229,7 @@ class Jogador(Personagem):
 
       for inimigo in tile_map.lista_inimigos:
         inimigo.retang.y += move_y * -1
+
   def update(self):
     self.camera_x = max(
       0,

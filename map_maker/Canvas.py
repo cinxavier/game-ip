@@ -2,11 +2,10 @@ import json
 import pygame
 from . import MM_Settings
 from .MM_Settings import PALLET_COLORS
-from src import Settings
+from theme import colors
 from src.utils.Sprites import Inimigo
 
 txt = pygame.font.Font("assets/fonts/main_font.ttf", 24)
-
 
 class Canvas:
   def __init__(self, screen: pygame.Surface):
@@ -272,7 +271,7 @@ class Canvas:
       sprite = Inimigo(enemy_data[0], enemy_data[1]).parado(enemy_data[2])[0]
       sprite = pygame.transform.scale(sprite, (rect[2], rect[3]))
 
-      pygame.draw.rect(self.screen, Settings.COLORS["enemy"], hitbox)
+      pygame.draw.rect(self.screen, colors.ENEMY_HOTBOX, hitbox)
       self.screen.blit(
         sprite,
         (
