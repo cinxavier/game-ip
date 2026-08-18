@@ -10,8 +10,8 @@ class Disco_Batalha:
     self.inventario = inventario
 
     self.decks = self.inventario.get_items_list().copy()
-    for deck in self.decks:
-      for carta in deck:
+    for idx1, deck in enumerate(self.decks):
+      for idx2, carta in enumerate(deck):
         carta.update(180)
 
     self.curr_group = -1

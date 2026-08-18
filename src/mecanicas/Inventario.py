@@ -13,7 +13,7 @@ class Inventory:
     self._screen = screen
 
     self.tile_size = 120
-    self.gap = 5
+    self.gap = 8
     self.border = 10
     self.items = {
       sprites.Carta.FORMA: {
@@ -35,7 +35,8 @@ class Inventory:
     for tipo in self.items:
       for funcao in self.items[tipo]:
         carta = Carta(tipo, funcao)
-        carta.update(self.tile_size)
+        carta.update(self.tile_size * 0.9)
+
         self.items[tipo][funcao]["item"] = carta
 
     self.items_list = None
@@ -172,7 +173,16 @@ class Inventory:
           ),
         )
         if self.items[line][col]["qnt"] > 0:
-          self.container.blit(self.items[line][col]["item"], (x, y))
+          carta: Carta = self.items[line][col]["item"]
+
+          carta.render(
+            self.container,
+            (
+              x + (self.tile_size - carta.sprite.width) / 2,
+              y + (self.tile_size - carta.sprite.height) / 2,
+            ),
+          )
+
           txt = fonts.DEFAULT.render(
             str(self.items[line][col]["qnt"]), False, colors.FOREGROUND
           )
@@ -193,9 +203,9 @@ class Inventory:
       return self.items_list
     else:
       self.items_list = []
-      for idx, deck in enumerate(self.items):
-        self.items_list.append([])
+      for deck in self.items:
+        new_line = []
         for carta in self.items[deck]:
-          self.items_list[idx].append(self.items[deck][carta]["item"])
-
+          new_line.append(Carta(deck, carta))
+        self.items_list.append(new_line)
       return self.get_items_list()

@@ -7,7 +7,7 @@ class Carta:
     sprites = Sprites.Carta(tipo, elemento)
     self.sprite = sprites.item()
     self.proportion = self.sprite.width / self.sprite.height
-    self.width, self.height = 270, 270 * self.proportion
+    self.width, self.height = 150 * self.proportion, 150
     self.sprite = pygame.transform.scale(self.sprite, (self.width, self.height))
 
   def update(self, tamanho: int):
