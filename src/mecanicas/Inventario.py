@@ -2,6 +2,7 @@ import pygame
 from theme import colors
 from theme import fonts
 import src.utils.Sprites as sprites
+from .Carta import Carta
 
 
 class Inventory:
@@ -16,27 +17,28 @@ class Inventory:
     self.border = 10
     self.items = {
       sprites.Carta.FORMA: {
-        "quadrado": {"qnt": 1},
-        "triangulo": {"qnt": 1},
-        "circulo": {"qnt": 0},
+        sprites.Carta.QUADRADO: {"qnt": 1},
+        sprites.Carta.TRIANGULO: {"qnt": 1},
+        sprites.Carta.CIRCULO: {"qnt": 0},
       },
       sprites.Carta.ELEMENTAL: {
-        "eletricidade": {"qnt": 1},
-        "metal": {"qnt": 0},
-        "borracha": {"qnt": 0},
+        sprites.ELETRICO: {"qnt": 1},
+        sprites.METAL: {"qnt": 0},
+        sprites.BORRACHA: {"qnt": 0},
       },
       sprites.Carta.UTILITARIO: {
-        "cura": {"qnt": 2},
-        "invisibilidade": {"qnt": 0},
-        "bencao": {"qnt": 0},
+        sprites.Carta.CURA: {"qnt": 2},
+        sprites.Carta.INVISIBILIDADE: {"qnt": 0},
+        sprites.Carta.BENCAO: {"qnt": 0},
       },
     }
-    for line in self.items:
-      for col in self.items[line]:
-        img = sprites.Carta(line, col.capitalize()).item()
-        img = pygame.transform.scale(img, (self.tile_size, self.tile_size))
-        self.items[line][col]["img"] = img
+    for tipo in self.items:
+      for funcao in self.items[tipo]:
+        carta = Carta(tipo, funcao)
+        carta.update(self.tile_size)
+        self.items[tipo][funcao]["item"] = carta
 
+    self.items_list = None
     self.width = (
       self.tile_size * len(self.items)
       + self.gap * (len(self.items) - 1)
@@ -170,7 +172,7 @@ class Inventory:
           ),
         )
         if self.items[line][col]["qnt"] > 0:
-          self.container.blit(self.items[line][col]["img"], (x, y))
+          self.container.blit(self.items[line][col]["item"], (x, y))
           txt = fonts.DEFAULT.render(
             str(self.items[line][col]["qnt"]), False, colors.FOREGROUND
           )
@@ -185,3 +187,15 @@ class Inventory:
           txt = fonts.DEFAULT.render("?", False, colors.FOREGROUND)
           txt = pygame.transform.scale(txt, (self.tile_size, self.tile_size))
           self.container.blit(txt, (x, y))
+
+  def get_items_list(self) -> list[list[Carta]]:
+    if self.items_list:
+      return self.items_list
+    else:
+      self.items_list = []
+      for idx, deck in enumerate(self.items):
+        self.items_list.append([])
+        for carta in self.items[deck]:
+          self.items_list[idx].append(self.items[deck][carta]["item"])
+
+      return self.get_items_list()

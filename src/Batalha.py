@@ -36,7 +36,8 @@ class Batalha(ScreenBase):
             self.run_animation("player", "ataque")
           case pygame.K_2:
             self.run_animation("inimigo", "ataque")
-
+        self.player.disco_de_batalha.events(event)
+          
   def update(self):
     if self.inimigo:
       self.frame_player += 0.3
@@ -59,7 +60,7 @@ class Batalha(ScreenBase):
       self.inimigo_sprite_atual = self.inimigo_sprites[self.inimigo_animacao_atual][
         int(self.frame_inimigo)
       ]
-
+      self.player.update()
   def render(self):
     if self.inimigo:
       self._screen.blit(self.campo, (0, 0))
@@ -76,24 +77,7 @@ class Batalha(ScreenBase):
         ),
       )
 
-      carta_ex = self.player.cartas[0].sprite
-      container = pygame.Rect(
-        0, 0, carta_ex.width * 0.75 * len(self.player.cartas), carta_ex.height
-      )
-
-      container = self._screen.subsurface(
-        container.center(
-          center=(
-            self._screen.width / 2,
-            self._screen.height - carta_ex.height - 100,
-          )
-        )
-      )
-
-      for idx, carta in enumerate(self.player.cartas):
-        carta.render(
-          container, (carta_ex.width * 0.75 * idx - carta_ex.width * 0.15, 0)
-        )
+      self.player.disco_de_batalha.render()
 
   def set_enemy(self, inimigo: Inimigo):
     self.inimigo: Inimigo = inimigo

@@ -5,18 +5,14 @@ from src.utils import Sprites
 from src.utils.Tile_map import paredes, spawnpoint
 from src.Settings import ESCALA
 from src.mecanicas.Inventario import Inventory
-from src.mecanicas.Carta import Carta
+from src.mecanicas.Disco_Batalha import Disco_Batalha
 
 
 class Jogador(Personagem):
   def __init__(self, tela: pygame.Surface, mapa: pygame.Surface):
     self.hp = 10
     self.mp = 70
-    self.cartas = [
-      Carta(Sprites.Carta.FORMA, Sprites.Carta.QUADRADO),
-      Carta(Sprites.Carta.FORMA, Sprites.Carta.CIRCULO),
-      Carta(Sprites.Carta.FORMA, Sprites.Carta.TRIANGULO),
-    ]
+
     self.tamanho = self.largura, self.altura = (16, 14)
     spawn = pygame.Rect(spawnpoint[1])
     self.camera_x = spawn.x
@@ -46,6 +42,7 @@ class Jogador(Personagem):
     self.delta_v = self.original_delta_v
 
     self.inventario = Inventory(tela)
+    self.disco_de_batalha = Disco_Batalha(tela, self.inventario)
 
   def eventos(self):
     tecla = pygame.key.get_pressed()
@@ -254,6 +251,7 @@ class Jogador(Personagem):
     )
 
     self.inventario.update(self.hp, self.mp)
+    self.disco_de_batalha.update()
 
   def render(self):
     if self.mostrar_colisao:
