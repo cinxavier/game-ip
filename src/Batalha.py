@@ -85,7 +85,7 @@ class Batalha(ScreenBase):
     sprites_inimigo = Sprites.Inimigo(inimigo.dados_sprite[0], inimigo.dados_sprite[1])
     self.inimigo_sprites = {
       "parado": sprites_inimigo.parado(Sprites.ESQUERDA),
-      "ataque": sprites_inimigo.atacando(Sprites.ESQUERDA),
+      "ataque": sprites_inimigo.atacando(),
     }
 
     for sprites in self.inimigo_sprites:

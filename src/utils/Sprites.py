@@ -65,7 +65,7 @@ class Inimigo:
       f"assets/images/Inimigos/{self.nivel}/{self.elemento}/Parado", direcao
     )
 
-  def atacando(self, direcao):
+  def atacando(self, direcao=None):
     return listar(
       f"assets/images/Inimigos/{self.nivel}/{self.elemento}/{ATAQUE}",
       direcao,
@@ -82,9 +82,7 @@ class Jogador:
       self.sprites[acao] = {}
       for direcao in DIRECOES:
         if acao != ATAQUE:
-          self.sprites[acao][direcao] = listar(
-            f"assets/images/Player/{acao}", direcao
-          )
+          self.sprites[acao][direcao] = listar(f"assets/images/Player/{acao}", direcao)
         else:
           self.sprites[acao] = listar("assets/images/Player/Atacando")
 

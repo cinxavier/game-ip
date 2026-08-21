@@ -7,22 +7,23 @@ from src.utils.Sprites import Inimigo
 
 txt = pygame.font.Font("assets/fonts/main_font.ttf", 24)
 
+
 class Canvas:
   def __init__(self, screen: pygame.Surface):
     self.enemies_map: list[tuple[list[str], pygame.Rect, pygame.Rect]] = []
     self.tile_map: list[tuple[int, pygame.Rect]] = []
-    self.screen = screen
+    self._screen = screen
 
     # tamanho da tela, calculada pela relação dos tijolos bordas e gaps
-    self.tiles_amount_x = self.screen.get_width() // MM_Settings.TILE_SIZE
-    self.tiles_amount_y = self.screen.get_height() // MM_Settings.TILE_SIZE
+    self.tiles_amount_x = self._screen.get_width() // MM_Settings.TILE_SIZE
+    self.tiles_amount_y = self._screen.get_height() // MM_Settings.TILE_SIZE
 
     self.width = self.tiles_amount_x * MM_Settings.TILE_SIZE
     self.height = self.tiles_amount_y * MM_Settings.TILE_SIZE
 
     map = pygame.image.load("assets/images/Mapa.png")
     self.map = pygame.transform.smoothscale(
-      map, (self.screen.get_width(), self.screen.get_height())
+      map, (self._screen.get_width(), self._screen.get_height())
     )
 
     self.waiting_second_point = False
@@ -35,16 +36,21 @@ class Canvas:
   def save_map(self):
     with open("data/settings.json", "w") as data:
       spawnpoint_rect = self.spawnpoint[1]
+      x, y, w, h = (
+        spawnpoint_rect.x,
+        spawnpoint_rect.y,
+        spawnpoint_rect.w,
+        spawnpoint_rect.h,
+      )
+      x = x * 100 / self._screen.width
+      w = w * 100 / self._screen.width
+      y = y * 100 / self._screen.height
+      h = h * 100 / self._screen.height
       settings = {
         "PALLET_COLORS": PALLET_COLORS,
         "spawnpoint": [
           self.spawnpoint[0],
-          [
-            spawnpoint_rect.x,
-            spawnpoint_rect.y,
-            spawnpoint_rect.w,
-            spawnpoint_rect.h,
-          ],
+          [x, y, w, h],
         ],
       }
       json.dump(
@@ -56,6 +62,11 @@ class Canvas:
       backup = self.tile_map.copy()
       for tile in backup:
         x, y, w, h = tile[1].x, tile[1].y, tile[1].w, tile[1].h
+        x = x * 100 / self._screen.width
+        w = w * 100 / self._screen.width
+        y = y * 100 / self._screen.height
+        h = h * 100 / self._screen.height
+
         tile[1] = [x, y, w, h]
       json.dump(backup, cache)
     with open("data/enemies_map.json", "w") as cache:
@@ -67,12 +78,22 @@ class Canvas:
           tile[1].w,
           tile[1].h,
         )
+        enemy_x = enemy_x * 100 / self._screen.width
+        enemy_w = enemy_w * 100 / self._screen.width
+        enemy_y = enemy_y * 100 / self._screen.height
+        enemy_h = enemy_h * 100 / self._screen.height
+
         hitbox_x, hitbox_y, hitbox_w, hitbox_h = (
           tile[2].x,
           tile[2].y,
           tile[2].w,
           tile[2].h,
         )
+        hitbox_x = hitbox_x * 100 / self._screen.width
+        hitbox_w = hitbox_w * 100 / self._screen.width
+        hitbox_y = hitbox_y * 100 / self._screen.height
+        hitbox_h = hitbox_h * 100 / self._screen.height
+
         tile[1] = [enemy_x, enemy_y, enemy_w, enemy_h]
         tile[2] = [hitbox_x, hitbox_y, hitbox_w, hitbox_h]
       json.dump(backup, cache)
@@ -82,21 +103,43 @@ class Canvas:
       with open("data/tile_map.json") as data:
         cache = json.load(data)
         for item in cache:
-          item[1] = pygame.Rect(item[1])
+          x, y, w, h = item[1]
+          x = self._screen.width * x / 100
+          w = self._screen.width * w / 100
+          y = self._screen.height * y / 100
+          h = self._screen.height * h / 100
+
+          item[1] = pygame.Rect(x, y, w, h)
         self.tile_map = cache
 
       with open("data/enemies_map.json") as data:
         cache = json.load(data)
         for item in cache:
-          item[1] = pygame.Rect(item[1])
-          item[2] = pygame.Rect(item[2])
+          enemy_x, enemy_y, enemy_w, enemy_h = item[1]
+          enemy_x = self._screen.width * enemy_x / 100
+          enemy_w = self._screen.width * enemy_w / 100
+          enemy_y = self._screen.height * enemy_y / 100
+          enemy_h = self._screen.height * enemy_h / 100
+          item[1] = pygame.Rect(enemy_x, enemy_y, enemy_w, enemy_h)
+
+          hitbox_x, hitbox_y, hitbox_w, hitbox_h = item[2]
+          hitbox_x = self._screen.width * hitbox_x / 100
+          hitbox_w = self._screen.width * hitbox_w / 100
+          hitbox_y = self._screen.height * hitbox_y / 100
+          hitbox_h = self._screen.height * hitbox_h / 100
+          item[2] = pygame.Rect(hitbox_x, hitbox_y, hitbox_w, hitbox_h)
         self.enemies_map = cache
 
       with open("data/settings.json") as data:
         settings = json.load(data)
         if settings["spawnpoint"]:
-          spawnpoint_rect_data = settings["spawnpoint"][1]
-          self.spawnpoint = [2, pygame.Rect(spawnpoint_rect_data)]
+          x, y, w, h = settings["spawnpoint"][1]
+          x = self._screen.width * x / 100
+          w = self._screen.width * w / 100
+          y = self._screen.height * y / 100
+          h = self._screen.height * h / 100
+
+          self.spawnpoint = [2, pygame.Rect(x, y, w, h)]
     except FileNotFoundError:
       print("Arquivo não encontrado")
 
@@ -252,17 +295,17 @@ class Canvas:
     self.spawnpoint = None
 
   def update_grid_tiles(self):
-    self.tiles_amount_x = self.screen.get_width() // MM_Settings.TILE_SIZE
-    self.tiles_amount_y = self.screen.get_height() // MM_Settings.TILE_SIZE
+    self.tiles_amount_x = self._screen.get_width() // MM_Settings.TILE_SIZE
+    self.tiles_amount_y = self._screen.get_height() // MM_Settings.TILE_SIZE
 
     self.width = self.tiles_amount_x * MM_Settings.TILE_SIZE
     self.height = self.tiles_amount_y * MM_Settings.TILE_SIZE
 
   def update(self):
-    self.screen.blit(self.map, (0, 0))
+    self._screen.blit(self.map, (0, 0))
     for tile_type, tile_data in self.tile_map:
       pygame.draw.rect(
-        self.screen,
+        self._screen,
         PALLET_COLORS[tile_type],
         tile_data,
       )
@@ -271,8 +314,8 @@ class Canvas:
       sprite = Inimigo(enemy_data[0], enemy_data[1]).parado(enemy_data[2])[0]
       sprite = pygame.transform.scale(sprite, (rect[2], rect[3]))
 
-      pygame.draw.rect(self.screen, colors.ENEMY_HOTBOX, hitbox)
-      self.screen.blit(
+      pygame.draw.rect(self._screen, colors.ENEMY_HOTBOX, hitbox)
+      self._screen.blit(
         sprite,
         (
           rect[0],
