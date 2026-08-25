@@ -10,9 +10,9 @@ class Disco_Batalha:
     self.inventario = inventario
 
     self.decks = self.inventario.get_items_list().copy()
-    for idx1, deck in enumerate(self.decks):
-      for idx2, carta in enumerate(deck):
-        carta.update(180)
+    for deck in self.decks:
+      for idx, card in enumerate(deck):
+        card.sprite = pygame.transform.rotate(card.sprite, 30 - 15 * idx)
 
     self.curr_group = -1
 
@@ -30,12 +30,13 @@ class Disco_Batalha:
     carta_ex: Carta = self.decks[0][0]
 
     if self.curr_group < 0:
-      deck_w = carta_ex.width + carta_ex.width * 0.2 * 2
+      deck_w = carta_ex.width + carta_ex.width * 0.5 * 2
+      deck_h = carta_ex.height * 1.2
       container = pygame.Rect(
         0,
         0,
         deck_w * (len(self.inventario.get_items_list())) + BORDER * 4,
-        deck_w,
+        deck_h + BORDER * 2,
       )
 
       container.center = (
@@ -48,17 +49,26 @@ class Disco_Batalha:
       pygame.draw.rect(container, "gray", ((0, 0), container.size))
 
       for deck_idx, deck in enumerate(self.decks):
-        for idx, carta in enumerate(deck):
+        pygame.draw.rect(
+          container,
+          "green",
+          ((BORDER + (deck_w + BORDER) * deck_idx, BORDER), (deck_w, deck_h)),
+        )
+
+        for carta_idx, carta in enumerate(deck):
           container.blit(
             carta.sprite,
             (
-              deck_w * deck_idx
-              + carta.sprite.width * 0.2 * idx
-              + BORDER
-              + BORDER * deck_idx,
+              BORDER
+              + (deck_w + BORDER) * deck_idx
+              + (deck_w - carta.sprite.width) / 2
+              - 30
+              + 40 * carta_idx,
               (container.height - carta.sprite.height) / 2,
             ),
           )
+      ex = pygame.transform.rotate(self.decks[0][0].sprite, 30)
+      ex.get_rect(center=(container.width / 2, 0))
 
     else:
       container = pygame.Rect(
@@ -76,11 +86,11 @@ class Disco_Batalha:
       container = self._screen.subsurface(container)
 
       pygame.draw.rect(container, "gray", ((0, 0), container.size))
-      for idx, carta in enumerate(self.decks[self.curr_group]):
+      for carta_idx, carta in enumerate(self.decks[self.curr_group]):
         carta.render(
           container,
           (
-            (carta_ex.width + BORDER) * idx + BORDER,
+            (carta_ex.width + BORDER) * carta_idx + BORDER,
             (container.height - carta.sprite.height) / 2,
           ),
         )
