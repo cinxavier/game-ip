@@ -10,7 +10,7 @@ from src.mecanicas.Disco_Batalha import Disco_Batalha
 
 class Jogador(Personagem):
   def __init__(self, tela: pygame.Surface, mapa: pygame.Surface):
-    self.hp = 10
+    self.hp = 49
     self.mp = 70
 
     self.tamanho = self.largura, self.altura = (16, 14)

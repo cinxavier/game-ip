@@ -34,6 +34,12 @@ class Canvas:
     self.load_save()
 
   def save_map(self):
+    if not self.spawnpoint:
+      self.spawnpoint = [
+        2,
+        pygame.Rect([0, 0, MM_Settings.TILE_SIZE, MM_Settings.TILE_SIZE]),
+      ]
+
     with open("data/settings.json", "w") as data:
       spawnpoint_rect = self.spawnpoint[1]
       x, y, w, h = (
@@ -174,12 +180,9 @@ class Canvas:
 
     if new_tile not in self.tile_map:
       if ink_idx == 2:
-        if self.spawnpoint is not None:
-          for idx, tile in enumerate(self.tile_map):
-            if tile[0] == 2:
-              self.tile_map.pop(idx)
         self.spawnpoint = new_tile
-      self.tile_map.append(new_tile)
+      else:
+        self.tile_map.append(new_tile)
 
   def draw_rect(self, ink_idx: int):
     if not self.waiting_second_point:
@@ -278,15 +281,18 @@ class Canvas:
 
   def erase(self, pensil_type: str):
     tile_x, tile_y = pygame.mouse.get_pos()
+    if self.waiting_second_point:
+      self.waiting_second_point = False
     if pensil_type == "enemy":
       for idx, enemy in enumerate(self.enemies_map):
         if enemy[1].collidepoint(tile_x, tile_y):
           self.enemies_map.pop(idx)
+          break
+    elif self.spawnpoint and self.spawnpoint[1].collidepoint(tile_x,tile_y):
+      self.spawnpoint= None
     else:
       for idx, tile in enumerate(self.tile_map):
         if tile[1].collidepoint(tile_x, tile_y):
-          if tile[0] == 2:
-            self.spawnpoint = None
           self.tile_map.pop(idx)
           break
 
@@ -321,4 +327,9 @@ class Canvas:
           rect[0],
           rect[1],
         ),
+      )
+
+    if self.spawnpoint is not None:
+      pygame.draw.rect(
+        self._screen, PALLET_COLORS[self.spawnpoint[0]], self.spawnpoint[1]
       )

@@ -23,7 +23,9 @@ class Batalha(ScreenBase):
       for idx, sprite in enumerate(self.player_sprites[sprites]):
         self.player_sprites[sprites][idx] = pygame.transform.scale(sprite, (110, 110))
 
-    self.player_sprite_atual = self.player_sprites[self.player_animacao_atual][0]
+    self.player_sprite_atual: pygame.Surface = self.player_sprites[
+      self.player_animacao_atual
+    ][0]
 
   def handle_events(self, events):
     for event in events:
@@ -37,7 +39,7 @@ class Batalha(ScreenBase):
           case pygame.K_2:
             self.run_animation("inimigo", "ataque")
         self.player.disco_de_batalha.events(event)
-          
+
   def update(self):
     if self.inimigo:
       self.frame_player += 0.3
@@ -61,21 +63,69 @@ class Batalha(ScreenBase):
         int(self.frame_inimigo)
       ]
       self.player.update()
+
   def render(self):
     if self.inimigo:
       self._screen.blit(self.campo, (0, 0))
 
-      self._screen.blit(
-        self.player_sprite_atual,
-        (300, self._screen.height / 2 - self.player_sprite_atual.height / 1.5),
+      player_pos = (
+        300,
+        self._screen.height / 2 - self.player_sprite_atual.height / 1.5,
       )
+      self._screen.blit(self.player_sprite_atual, player_pos)
+      player_hp_w = self.player_sprite_atual.width
+      player_hp_h = 20
+      player_hp_x = player_pos[0]
+      player_hp_y = player_pos[1] - player_hp_h - 5
+
+      pygame.draw.rect(
+        self._screen, "red", (player_hp_x, player_hp_y, player_hp_w, player_hp_h)
+      )
+      pygame.draw.rect(
+        self._screen,
+        "green",
+        (player_hp_x, player_hp_y, player_hp_w * (self.player.hp / 100), player_hp_h),
+      )
+      font = pygame.font.Font("assets/fonts/main_font.ttf", 25)
+      player_hp_text = font.render(f"{self.player.hp}/100", False, "black")
       self._screen.blit(
-        self.inimigo_sprite_atual,
+        player_hp_text,
+        (
+          player_hp_x + (player_hp_w - player_hp_text.width) / 2,
+          player_hp_y + (player_hp_h - player_hp_text.height) / 2,
+        ),
+      )
+
+      enemy_pos = (
         (
           self._screen.width - 300 - self.inimigo_sprite_atual.width,
           self._screen.height / 2 - self.inimigo_sprite_atual.height / 1.5,
         ),
       )
+      enemy_hp_w = self.player_sprite_atual.width
+      enemy_hp_h = 20
+      enemy_hp_x = player_pos[0]
+      enemy_hp_y = player_pos[1] - enemy_hp_h - 5
+
+      pygame.draw.rect(
+        self._screen, "red", (enemy_hp_x, enemy_hp_y, enemy_hp_w, enemy_hp_h)
+      )
+      pygame.draw.rect(
+        self._screen,
+        "green",
+        (enemy_hp_x, enemy_hp_y, enemy_hp_w * (self.player.hp / 100), enemy_hp_h),
+      )
+      font = pygame.font.Font("assets/fonts/main_font.ttf", 25)
+      enemy_hp_text = font.render(f"{self.player.hp}/100", False, "black")
+      self._screen.blit(
+        enemy_hp_text,
+        (
+          enemy_hp_x + (enemy_hp_w - enemy_hp_text.width) / 2,
+          enemy_hp_y + (enemy_hp_h - enemy_hp_text.height) / 2,
+        ),
+      )
+
+      self._screen.blit(self.inimigo_sprite_atual, enemy_pos)
 
       self.player.disco_de_batalha.render()
 
