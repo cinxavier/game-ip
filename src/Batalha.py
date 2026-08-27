@@ -97,6 +97,8 @@ class Batalha(ScreenBase):
     if self.inimigo:
       self._screen.blit(self.campo, (0, 0))
 
+      self.render_player()
+      
       enemy_pos = (
         self._screen.width - 300 - self.inimigo_sprite_atual.width,
         self._screen.height / 2 - self.inimigo_sprite_atual.height / 1.5,
@@ -114,6 +116,8 @@ class Batalha(ScreenBase):
         "green",
         (enemy_hp_x, enemy_hp_y, enemy_hp_w * (self.inimigo.hp / 100), enemy_hp_h),
       )
+
+      font = pygame.font.Font("assets/fonts/main_font.ttf", 25)
       enemy_hp_text = font.render(f"{self.inimigo.hp}/100", False, "black")
       self._screen.blit(
         enemy_hp_text,
