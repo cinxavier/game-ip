@@ -265,7 +265,7 @@ class Jogador(Personagem):
           self.rect.h * ESCALA,
         ),
       )
-
+    if 
     self.imagem = pygame.transform.scale_by(self.imagem, 2)
     self.tela.blit(
       self.imagem,

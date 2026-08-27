@@ -18,7 +18,8 @@ class Inimigo(Personagem):
     self.sprites = Sprites.Inimigo(dados_sprite[0], dados_sprite[1]).parado(
       dados_sprite[2]
     )
-
+    self.hp = 100
+    self.mp = 40
     self.frame = 0
     self.prox_frame = 0.5
     self.sprite_atual = self.sprites[self.frame]

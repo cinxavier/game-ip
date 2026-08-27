@@ -12,7 +12,7 @@ class Batalha(ScreenBase):
     self.campo = pygame.transform.smoothscale(self.campo, self._screen.size)
 
     self.player: Jogador = player
-    self.player_sprites = {
+    self.player_sprites: dict[str, list[pygame.Surface]] = {
       "ataque": Sprites.Jogador().atacando(),
       "parado": Sprites.Jogador().parado(Sprites.DIREITA),
     }
@@ -64,48 +64,47 @@ class Batalha(ScreenBase):
       ]
       self.player.update()
 
+  def render_player(self):
+    player_pos = (
+      300,
+      self._screen.height / 2 - self.player_sprite_atual.height / 1.5,
+    )
+    self._screen.blit(self.player_sprite_atual, player_pos)
+    player_hp_w = self.player_sprites["parado"][0].width
+    player_hp_h = 20
+    player_hp_x = player_pos[0]
+    player_hp_y = player_pos[1] - player_hp_h - 5
+
+    pygame.draw.rect(
+      self._screen, "red", (player_hp_x, player_hp_y, player_hp_w, player_hp_h)
+    )
+    pygame.draw.rect(
+      self._screen,
+      "green",
+      (player_hp_x, player_hp_y, player_hp_w * (self.player.hp / 100), player_hp_h),
+    )
+    font = pygame.font.Font("assets/fonts/main_font.ttf", 25)
+    player_hp_text = font.render(f"{self.player.hp}/100", False, "black")
+    self._screen.blit(
+      player_hp_text,
+      (
+        player_hp_x + (player_hp_w - player_hp_text.width) / 2,
+        player_hp_y + (player_hp_h - player_hp_text.height) / 2,
+      ),
+    )
+
   def render(self):
     if self.inimigo:
       self._screen.blit(self.campo, (0, 0))
 
-      player_pos = (
-        300,
-        self._screen.height / 2 - self.player_sprite_atual.height / 1.5,
-      )
-      self._screen.blit(self.player_sprite_atual, player_pos)
-      player_hp_w = self.player_sprite_atual.width
-      player_hp_h = 20
-      player_hp_x = player_pos[0]
-      player_hp_y = player_pos[1] - player_hp_h - 5
-
-      pygame.draw.rect(
-        self._screen, "red", (player_hp_x, player_hp_y, player_hp_w, player_hp_h)
-      )
-      pygame.draw.rect(
-        self._screen,
-        "green",
-        (player_hp_x, player_hp_y, player_hp_w * (self.player.hp / 100), player_hp_h),
-      )
-      font = pygame.font.Font("assets/fonts/main_font.ttf", 25)
-      player_hp_text = font.render(f"{self.player.hp}/100", False, "black")
-      self._screen.blit(
-        player_hp_text,
-        (
-          player_hp_x + (player_hp_w - player_hp_text.width) / 2,
-          player_hp_y + (player_hp_h - player_hp_text.height) / 2,
-        ),
-      )
-
       enemy_pos = (
-        (
-          self._screen.width - 300 - self.inimigo_sprite_atual.width,
-          self._screen.height / 2 - self.inimigo_sprite_atual.height / 1.5,
-        ),
+        self._screen.width - 300 - self.inimigo_sprite_atual.width,
+        self._screen.height / 2 - self.inimigo_sprite_atual.height / 1.5,
       )
-      enemy_hp_w = self.player_sprite_atual.width
+      enemy_hp_w = self.inimigo_sprites["parado"][0].width
       enemy_hp_h = 20
-      enemy_hp_x = player_pos[0]
-      enemy_hp_y = player_pos[1] - enemy_hp_h - 5
+      enemy_hp_x = enemy_pos[0]
+      enemy_hp_y = enemy_pos[1] - enemy_hp_h - 5
 
       pygame.draw.rect(
         self._screen, "red", (enemy_hp_x, enemy_hp_y, enemy_hp_w, enemy_hp_h)
@@ -113,10 +112,9 @@ class Batalha(ScreenBase):
       pygame.draw.rect(
         self._screen,
         "green",
-        (enemy_hp_x, enemy_hp_y, enemy_hp_w * (self.player.hp / 100), enemy_hp_h),
+        (enemy_hp_x, enemy_hp_y, enemy_hp_w * (self.inimigo.hp / 100), enemy_hp_h),
       )
-      font = pygame.font.Font("assets/fonts/main_font.ttf", 25)
-      enemy_hp_text = font.render(f"{self.player.hp}/100", False, "black")
+      enemy_hp_text = font.render(f"{self.inimigo.hp}/100", False, "black")
       self._screen.blit(
         enemy_hp_text,
         (
@@ -133,7 +131,7 @@ class Batalha(ScreenBase):
     self.inimigo: Inimigo = inimigo
 
     sprites_inimigo = Sprites.Inimigo(inimigo.dados_sprite[0], inimigo.dados_sprite[1])
-    self.inimigo_sprites = {
+    self.inimigo_sprites: dict[str, list[pygame.Surface]] = {
       "parado": sprites_inimigo.parado(Sprites.ESQUERDA),
       "ataque": sprites_inimigo.atacando(),
     }
