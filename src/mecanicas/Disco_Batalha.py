@@ -2,6 +2,7 @@ import pygame
 from .Inventario import Inventory
 from .Carta import Carta
 from theme.sizes import BORDER
+from theme.colors import SECONDARY_DARK
 
 
 class Disco_Batalha:
@@ -11,16 +12,28 @@ class Disco_Batalha:
 
     self.decks = self.inventario.get_items_list().copy()
     self.curr_group = -1
+    self.cursor_idx = 0
 
   def events(self, evento: pygame.Event):
     if evento.type == pygame.KEYDOWN:
       match evento.key:
         case pygame.K_SPACE:
-          self.curr_group += 1
+          if self.curr_group < 0:
+            self.curr_group = self.cursor_idx
+            self.cursor_idx = 0
+        case pygame.K_RIGHT | pygame.K_d:
+          self.cursor_idx += 1
+        case pygame.K_LEFT | pygame.K_a:
+          self.cursor_idx -= 1
 
   def update(self):
     if self.curr_group >= len(self.decks):
       self.curr_group = -1
+
+    if self.cursor_idx >= len(self.decks):
+      self.cursor_idx = 0
+    elif self.cursor_idx < 0:
+      self.cursor_idx = len(self.decks) - 1
 
   def render(self):
     carta_ex: Carta = self.decks[0][0]
@@ -45,12 +58,17 @@ class Disco_Batalha:
       pygame.draw.rect(container, "gray", ((0, 0), container.size))
 
       for deck_idx, deck in enumerate(self.decks):
-        pygame.draw.rect(
-          container,
-          "green",
-          ((BORDER + (deck_w + BORDER) * deck_idx, BORDER), (deck_w, deck_h)),
-        )
-
+        if self.cursor_idx == deck_idx:
+          pygame.draw.rect(
+            container,
+            SECONDARY_DARK,
+            (
+              BORDER - 5 + (BORDER + deck_w) * deck_idx,
+              BORDER - 5,
+              deck_w + 5 * 2,
+              deck_h + 5 * 2,
+            ),
+          )
         for carta_idx, carta in enumerate(deck):
           container.blit(
             carta.sprite,
@@ -81,6 +99,17 @@ class Disco_Batalha:
 
       pygame.draw.rect(container, "gray", ((0, 0), container.size))
       for carta_idx, carta in enumerate(self.decks[self.curr_group]):
+        if self.cursor_idx == carta_idx:
+                  pygame.draw.rect(
+                    container,
+                    SECONDARY_DARK,
+                    (
+                      BORDER - 5 + (BORDER + carta.width) * carta_idx,
+                      BORDER - 5,
+                      carta.width + 5 * 2,
+                      carta.height + 5 * 2,
+                    ),
+                  )
         carta.render(
           container,
           (
