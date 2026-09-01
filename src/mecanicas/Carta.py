@@ -4,8 +4,8 @@ from src.utils import Sprites
 
 class Carta:
   def __init__(self, tipo: str, elemento: str):
-    sprites = Sprites.Carta(tipo, elemento)
-    self.sprite = sprites.item()
+    sprites = Sprites.Carta(tipo)
+    self.sprite = sprites.item(elemento)
     self.proportion = self.sprite.width / self.sprite.height
     self.width, self.height = 150 * self.proportion, 150
     self.sprite = pygame.transform.scale(self.sprite, (self.width, self.height))

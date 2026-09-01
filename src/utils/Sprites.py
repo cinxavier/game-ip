@@ -97,13 +97,20 @@ class Jogador:
 
 
 class Carta:
+  ELEMENTAL = "Elementais"
+  FORMA = "Formas"
+  UTILITARIO = "Utilitarios"
+  ACOES = "Acoes"
+
+  ATAQUE = "Ataque"
+  DEFESA = "Defesa"
+  INVENTARIO = "Inventario"
+  ACOES_CARTAS = [ATAQUE, DEFESA, INVENTARIO]
+
   BENCAO = "Bencao"
   CURA = "Cura"
   INVISIBILIDADE = "Invisibilidade"
 
-  ELEMENTAL = "Elementais"
-  FORMA = "Formas"
-  UTILITARIO = "Utilitarios"
   TIPOS_CARTAS = [
     ELEMENTAL,
     FORMA,
@@ -122,15 +129,21 @@ class Carta:
   def __init__(
     self,
     tipo_carta: str,
-    elemento: str,
   ):
     self.tipo_carta = tipo_carta
-    self.elemento = elemento
 
   def coletavel(self):
     return listar(f"assets/images/Cartas/{self.tipo_carta}/Coletavel")
 
-  def item(self):
+  def item(self, elemento: str):
     return pygame.image.load(
-      f"assets/images/Cartas/{self.tipo_carta}/Itens/{self.elemento}.png"
+      f"assets/images/Cartas/{self.tipo_carta}/Itens/{elemento}.png"
     )
+
+  def items(self, cartas: list[str]) -> list[pygame.Surface]:
+    lista = []
+    for carta in cartas:
+      lista.append(
+        pygame.image.load(f"assets/images/Cartas/{self.tipo_carta}/Itens/{carta}.png")
+      )
+    return lista

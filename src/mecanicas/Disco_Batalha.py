@@ -3,22 +3,33 @@ from .Inventario import Inventory
 from .Carta import Carta
 from theme.sizes import BORDER
 from theme.colors import SECONDARY_DARK
+from src.utils import Sprites
 
 
 class Disco_Batalha:
+  ACTIONS_GROUP = -1
+  FORMS_GROUP = 0
+  ELEMENTS_GROUP = 1
+  ITEMS_GROUP = 2
+
   def __init__(self, tela: pygame.Surface, inventario: Inventory):
     self._screen = tela
     self.inventario = inventario
 
     self.decks = self.inventario.get_items_list().copy()
-    self.curr_group = -1
+    self.action_cards = []
+    for card in Sprites.Carta.ACOES_CARTAS:
+      new_card = Carta(Sprites.Carta.ACOES, card)
+      new_card.update(inventario.tile_size * 0.9)
+      self.action_cards.append(new_card)
+    self.curr_group = self.ACTIONS_GROUP
     self.cursor_idx = 0
 
   def events(self, evento: pygame.Event):
     if evento.type == pygame.KEYDOWN:
       match evento.key:
         case pygame.K_SPACE:
-          if self.curr_group < 0:
+          if self.curr_group < self.ACTIONS_GROUP:
             self.curr_group = self.cursor_idx
             self.cursor_idx = 0
         case pygame.K_RIGHT | pygame.K_d:
@@ -100,16 +111,16 @@ class Disco_Batalha:
       pygame.draw.rect(container, "gray", ((0, 0), container.size))
       for carta_idx, carta in enumerate(self.decks[self.curr_group]):
         if self.cursor_idx == carta_idx:
-                  pygame.draw.rect(
-                    container,
-                    SECONDARY_DARK,
-                    (
-                      BORDER - 5 + (BORDER + carta.width) * carta_idx,
-                      BORDER - 5,
-                      carta.width + 5 * 2,
-                      carta.height + 5 * 2,
-                    ),
-                  )
+          pygame.draw.rect(
+            container,
+            SECONDARY_DARK,
+            (
+              BORDER - 5 + (BORDER + carta.width) * carta_idx,
+              BORDER - 5,
+              carta.width + 5 * 2,
+              carta.height + 5 * 2,
+            ),
+          )
         carta.render(
           container,
           (
